@@ -1,0 +1,232 @@
+import * as jssha256 from 'js-sha256';
+import * as ed from '@noble/ed25519';
+
+import { EnvTypes } from './types';
+import { domainUrlList } from './core/config';
+import { getUserInfoRequest } from './api';
+import { Request } from './core/request';
+
+export {
+  userLoginRequest,
+  getUserInfoRequest,
+  getUserPublicProfileRequest,
+  getPublicFollowerListRequest,
+  getPublicFollowingListRequest,
+} from './api';
+
+export const ByteArrayToHexString = (
+  byteArray: Iterable<unknown> | ArrayLike<unknown>,
+) => {
+  return Array.from(byteArray, (byte: any) =>
+    // eslint-disable-next-line no-bitwise
+    `0${(byte & 0xff).toString(16)}`.slice(-2),
+  ).join('');
+};
+
+const Uint8ToBase64String = (u8a: any) => {
+  return btoa(String.fromCharCode.apply(null, u8a));
+};
+
+export const GenerateEd25519KeyPair = async () => {
+  const privateObj = ed.utils.randomPrivateKey();
+  const pubkeyObj = await ed.getPublicKey(privateObj);
+  const PrivateKey = ByteArrayToHexString(privateObj);
+  const PublicKey = ByteArrayToHexString(pubkeyObj);
+  return {
+    PrivateKey,
+    PublicKey,
+  };
+};
+
+export const sha256 = (data: string | Uint8Array): Uint8Array => {
+  return new Uint8Array(jssha256.sha256.digest(data));
+};
+
+export const getDataSignature = async (
+  PrivateKey: string,
+  signContent: string,
+) => {
+  if (!PrivateKey) {
+    throw new Error('Ed25519PrivateKey not found');
+  }
+  const signature = await ed.sign(
+    new TextEncoder().encode(signContent),
+    PrivateKey,
+  );
+  return Uint8ToBase64String(signature);
+};
+
+export const getCurrentDate = () => {
+  const d = new Date();
+  return `${`0${d.getDate()}`.slice(-2)}/${`0${d.getMonth() + 1}`.slice(
+    -2,
+  )}/${d.getFullYear()} ${`0${d.getHours()}`.slice(
+    -2,
+  )}:${`0${d.getMinutes()}`.slice(-2)}`;
+};
+
+const getServerList = async (arr: any[]) => {
+  let serverList = [];
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of
+  for (let i = 0; i < arr.length; i++) {
+    const domain = arr[i];
+    try {
+      const { data } = await Request.get(`${domain}/api/server-list/`);
+      // serverList = await (
+      //   await Request.get(`${domain}/api/server-list/`)
+      // ).data.data;
+      serverList = data;
+      break;
+    } catch (error) {
+      continue;
+    }
+  }
+  return serverList;
+};
+
+export const getAllDomainList = async (env: EnvTypes) => {
+  const list = await getServerList(domainUrlList[env]);
+
+  const timestamp = Date.now();
+  const requestQueue = [];
+
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of
+  for (let i = 0; i < list.length; i++) {
+    const item = list[i].endpoint;
+    try {
+      const { headers } = await Request.head(`${item}/api/ping/`);
+      const timeDifference = new Date(headers.date).valueOf() - timestamp;
+      requestQueue.push({
+        time: timeDifference,
+        url: item,
+        serverRate: headers['server-rate'],
+        nodeId: headers.nodeid,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  return requestQueue;
+};
+
+const handleSort = (key: string) => {
+  return (a: any, b: any) => {
+    const val1 = Number(a[key]);
+    const val2 = Number(b[key]);
+    return val1 - val2;
+  };
+};
+
+export const getFastestUrl = async (env: EnvTypes = 'test') => {
+  const list = await getAllDomainList(env);
+  return list.sort(handleSort('time'))[0].url;
+};
+
+export const renderMessagesList = async (msglist: any) => {
+  return msglist.map((msg: any, idx: number) => {
+    let content = '';
+    if (msg.cipher_suite === 'NONE') {
+      content = decodeURIComponent(escape(window.atob(msg.payload)));
+    }
+    // else if (msg.cipher_suite == 'RSA_OAEP') {
+    //   if (msg.payload) {
+    //     let byteContent = Uint8Array.from(atob(msg.payload), (c) => c.charCodeAt(0));
+
+    //     let decodeBytes = await getRsaDecryptData(RsaPrivateKeyStr ?? '', byteContent);
+    //     content = new TextDecoder().decode(decodeBytes);
+    //   } else {
+    //     content = '';
+    //   }
+    // }
+    else {
+      content = `UnKnow message type ${msg.cipher_suite}`;
+    }
+    const date = new Date(msg.timestamp);
+
+    const timestampStr = `${date.getHours()}:${date.getMinutes()}`;
+
+    const dateStr = `${date.getFullYear()}-${
+      date.getMonth() + 1
+    }-${date.getDate()}`;
+    const message = {
+      _id: idx + 1,
+      id: idx + 1,
+      indexId: idx + 1,
+      content,
+      senderId: msg.from,
+      username: '',
+      avatar: 'assets/imgs/doe.png',
+      // date: "13 November",
+      // timestamp: "10:20",
+      date: dateStr,
+      timestamp: timestampStr,
+      system: false,
+      saved: false,
+      distributed: true,
+      seen: true,
+      failure: false,
+    };
+    return message;
+  });
+};
+
+export const transformAddress = async (walletAddress: string) => {
+  if (walletAddress.toLowerCase().startsWith('0x')) {
+    const { data } = await getUserInfoRequest({
+      did_type: 'eth',
+      did_value: walletAddress,
+      timestamp: Date.now(),
+    });
+    return data.userid;
+  }
+  return walletAddress;
+};
+
+export const saveStates = async (keyName: string, value: any) => {
+  const state = await snap.request({
+    method: 'snap_manageState',
+    params: { operation: 'get' },
+  });
+  if (state) {
+    state[keyName] = value;
+    return await snap.request({
+      method: 'snap_manageState',
+      params: { operation: 'update', newState: { ...state } },
+    });
+  }
+  return await snap.request({
+    method: 'snap_manageState',
+    params: { operation: 'update', newState: { [keyName]: value } },
+  });
+};
+
+export const getStatesByKey = async (key: string) => {
+  const state = await snap.request({
+    method: 'snap_manageState',
+    params: { operation: 'get' },
+  });
+  console.log(state, 'state');
+
+  if (state === null || typeof state !== 'object') {
+    return null;
+  }
+  console.log(JSON.stringify(state), 'state - stringify');
+  if (state[key]) {
+    return state[key];
+  }
+  return null;
+};
+
+export const getWeb3MQTempKeys = async () => {
+  const PrivateKey = ((await getStatesByKey('PRIVATE_KEY')) as string) || '';
+  const PublicKey = ((await getStatesByKey('PUBLIC_KEY')) as string) || '';
+  const userid = ((await getStatesByKey('userid')) as string) || '';
+  if (!PrivateKey && !PublicKey && !userid) {
+    throw new Error('The PrivateKey and PublicKey is required!');
+  }
+  return {
+    PrivateKey,
+    PublicKey,
+    userid,
+  };
+};
