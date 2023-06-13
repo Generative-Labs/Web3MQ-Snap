@@ -8,6 +8,7 @@ export const request = async (
   const baseUrl = (await getStatesByKey('FAST_URL')) || '';
   const didKey = (await getStatesByKey('DID_KEY')) || '';
   const pubKey = (await getStatesByKey('PUBLIC_KEY')) || '';
+  console.log(`didKey: ${didKey}, pubKey： ${pubKey}`)
   const headers = {
     'content-type': 'application/json',
     'web3mq-request-pubkey': pubKey,
@@ -38,6 +39,7 @@ export const request = async (
 
     if (response.status === 200) {
       const res = await response.json();
+      console.log(res, 'fetch resp')
       if (res.code !== 0) {
         throw new Error(res.msg);
       }
@@ -45,6 +47,7 @@ export const request = async (
       // eslint-disable-next-line consistent-return
       return res;
     }
+    console.log(response, 'fetch error')
     const errorMessage = await response.text();
     return Promise.reject(new Error(errorMessage));
   });

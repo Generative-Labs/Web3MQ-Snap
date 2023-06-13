@@ -330,17 +330,18 @@ Issued At: ${getCurrentDate()}`;
         userid + pubkey_type + mainPubKey + did_type + address + timestamp,
       );
       const signContent = `Web3MQ wants you to sign in with your Ethereum account:
-${address}
-For Web3MQ register
-Version: 1
+        ${address}
+        For Web3MQ register
+        Version: 1
 
-Nonce: ${NonceContent}
-Issued At: ${getCurrentDate()}`;
+        Nonce: ${NonceContent}
+        Issued At: ${getCurrentDate()}`;
       const { sign: signRes, publicKey: did_pubkey = '' } = await this.sign(
         signContent,
         address,
         did_type,
       );
+      this.registerSignContent = signContent
       // await this.register({
       //   userid,
       //   didValue: address,
@@ -368,8 +369,13 @@ Issued At: ${getCurrentDate()}`;
       };
 
       try {
+        console.log(
+          JSON.stringify(payload),
+          'request to /api/user_register_v2/',
+        );
         return await userRegisterRequest(payload);
       } catch (error: any) {
+        console.error(error, 'userRegisterRequest error');
         throw new Error(error.message);
       }
     }
