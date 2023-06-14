@@ -1,13 +1,13 @@
 import { Channel } from "../channel";
 
-export type NotifyMessageRpcDto = {
-  message: string
+export type CreateRoomDto = {
+  group_name?: string
 }
 
-export async function createRoom(payload: any) {
+export async function createRoom(payload: CreateRoomDto) {
   try {
-    const { group_name = '', avatar_url = '' } = payload;
-    const res = await Channel.createRoom(group_name, avatar_url);
+    const { group_name = '' } = payload;
+    const res = await Channel.createRoom(group_name, '');
     console.log(res, 'createRoom response')
     return res
   } catch (e) {

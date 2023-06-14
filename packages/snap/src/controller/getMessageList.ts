@@ -1,4 +1,3 @@
-import { Channel } from "../channel";
 import { Message } from "../message";
 import { PageParams } from "../types";
 

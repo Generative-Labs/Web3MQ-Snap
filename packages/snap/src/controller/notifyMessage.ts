@@ -1,9 +1,9 @@
 
-export type NotifyMessageRpcDto = {
+export type SendNotifyMessageRpcDto = {
   message: string
 }
 
-export async function sendNotifyMessage(payload: NotifyMessageRpcDto) {
+export async function sendNotifyMessage(payload: SendNotifyMessageRpcDto) {
   const { message } = payload;
   try {
     return snap.request({
