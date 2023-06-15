@@ -5,7 +5,7 @@ export type SnapRpcPayload = Json[] | Record<string, Json>
 
 /**
  *
- * @example {"jsonrpc":"2.0","id":"EpaBElurfNrb6v-FRxc8o","method":"connectToWeb3MQ","params":{"password":"daohaoqu4","nickname":"testAccount"}}
+ * @example {"jsonrpc":"2.0","id":"EpaBElurfNrb6v-FRxc8o","method":"user","params":{"password":"daohaoqu4","nickname":"testAccount"}}
  */
 export type SnapRpcRequest = {
   origin: string;

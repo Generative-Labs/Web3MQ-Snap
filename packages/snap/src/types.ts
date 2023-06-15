@@ -161,3 +161,53 @@ export const WalletNameMap = {
   starknet: 'Argent X',
   qrcode: 'Qrcode',
 };
+
+export type ServiceResponse = {
+  data: any;
+  msg: string;
+  code: number;
+};
+export type WalletBaseParams = {
+  userid: string;
+  did_pubkey?: string;
+  did_signature: string;
+  sign_content: string;
+  timestamp: number;
+};
+export interface FollowOperationApiParams extends WalletBaseParams {
+  address: string;
+  target_userid: string;
+  action: 'follow' | 'cancel';
+  did_type: WalletType;
+}
+export type NewBaseParams = {
+  userid: string;
+  web3mq_user_signature: string;
+  timestamp: number;
+};
+
+export interface NewCommonGetListParams extends NewBaseParams, PageParams {}
+
+export interface SendFriendParams extends BaseParams {
+  content: string;
+  target_userid: string;
+}
+export type FollowStatus = 'following' | 'follower' | 'follow_each';
+export type UserPermissionsType = Record<string, { type: string; value: boolean }>;
+
+export type ContactListItemType = {
+  avatar_url: string;
+  follow_status: FollowStatus;
+  nickname: string;
+  permissions: UserPermissionsType;
+  userid: string;
+  wallet_address: string;
+  wallet_type: WalletType;
+};
+
+export interface FollowOperationParams {
+  address: string;
+  targetUserid: string;
+  action: 'follow' | 'cancel';
+  didType: WalletType;
+}

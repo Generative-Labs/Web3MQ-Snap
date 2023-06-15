@@ -304,12 +304,20 @@ Issued At: ${getCurrentDate()}`;
 
   async connectWeb3MQNetwork(params: { password: string; nickname?: string }) {
     const { password, nickname = '' } = params;
-    let mainPriKey =
-      ((await getStatesByKey('MAIN_PRIVATE_KEY')) as string) || '';
-    let mainPubKey =
-      ((await getStatesByKey('MAIN_PUBLIC_KEY')) as string) || '';
-    const did_type: WalletType = 'eth';
+    let mainPubKey = '';
+    let mainPriKey = '';
+    const localAddress = (await getStatesByKey('WALLET_ADDRESS')) as string;
     const { address } = await this.getAccount('eth');
+    if (
+      localAddress &&
+      localAddress.toLocaleLowerCase() === address.toLocaleLowerCase()
+    ) {
+      mainPriKey = (await getStatesByKey('MAIN_PRIVATE_KEY')) as string;
+      mainPubKey = (await getStatesByKey('MAIN_PUBLIC_KEY')) as string;
+    }
+    console.log(mainPriKey, 'mainPriKey - local');
+    console.log(mainPubKey, 'mainPubKey - local');
+    const did_type: WalletType = 'eth';
     const { userid, userExist } = await this.getUserInfo({
       did_type,
       did_value: address,
@@ -324,60 +332,81 @@ Issued At: ${getCurrentDate()}`;
       mainPubKey = publicKey;
     }
     if (!userExist) {
-      const pubkey_type = this.pubicKeyType;
-      const timestamp = Date.now();
-      const NonceContent = sha3_224(
-        userid + pubkey_type + mainPubKey + did_type + address + timestamp,
-      );
-      const signContent = `Web3MQ wants you to sign in with your Ethereum account:
-        ${address}
-        For Web3MQ register
-        Version: 1
-
-        Nonce: ${NonceContent}
-        Issued At: ${getCurrentDate()}`;
+      const { signContent } = await this.getRegisterSignContent({
+        userid,
+        mainPublicKey: mainPubKey,
+        didType: did_type,
+        didValue: address,
+      });
       const { sign: signRes, publicKey: did_pubkey = '' } = await this.sign(
         signContent,
         address,
         did_type,
       );
-      this.registerSignContent = signContent
-      // await this.register({
-      //   userid,
-      //   didValue: address,
-      //   mainPublicKey: mainPubKey,
-      //   did_pubkey,
-      //   didType: did_type,
-      //   nickname,
-      //   avatar_url: `https://cdn.stamp.fyi/avatar/${address}?s=300`,
-      //   signature: signRes,
-      // });
-      const payload: RegisterParams = {
+      await this.register({
         userid,
-        did_type,
-        did_value: address,
+        didValue: address,
+        mainPublicKey: mainPubKey,
         did_pubkey,
-        did_signature: signRes,
-        signature_content: this.registerSignContent,
-        pubkey_type: this.pubicKeyType,
-        pubkey_value: mainPubKey,
+        didType: did_type,
         nickname,
         avatar_url: `https://cdn.stamp.fyi/avatar/${address}?s=300`,
-        avatar_base64: '',
-        timestamp,
-        testnet_access_key: this.appKey,
-      };
-
-      try {
-        console.log(
-          JSON.stringify(payload),
-          'request to /api/user_register_v2/',
-        );
-        return await userRegisterRequest(payload);
-      } catch (error: any) {
-        console.error(error, 'userRegisterRequest error');
-        throw new Error(error.message);
-      }
+        signature: signRes,
+      });
+      // const pubkey_type = this.pubicKeyType;
+      // const timestamp = Date.now();
+      // const NonceContent = sha3_224(
+      //   userid + pubkey_type + mainPubKey + did_type + address + timestamp,
+      // );
+      // const signContent = `Web3MQ wants you to sign in with your Ethereum account:
+      //   ${address}
+      //   For Web3MQ register
+      //   Version: 1
+      //
+      //   Nonce: ${NonceContent}
+      //   Issued At: ${getCurrentDate()}`;
+      // const { sign: signRes, publicKey: did_pubkey = '' } = await this.sign(
+      //   signContent,
+      //   address,
+      //   did_type,
+      // );
+      // this.registerSignContent = signContent
+      // // await this.register({
+      // //   userid,
+      // //   didValue: address,
+      // //   mainPublicKey: mainPubKey,
+      // //   did_pubkey,
+      // //   didType: did_type,
+      // //   nickname,
+      // //   avatar_url: `https://cdn.stamp.fyi/avatar/${address}?s=300`,
+      // //   signature: signRes,
+      // // });
+      // const payload: RegisterParams = {
+      //   userid,
+      //   did_type,
+      //   did_value: address,
+      //   did_pubkey,
+      //   did_signature: signRes,
+      //   signature_content: this.registerSignContent,
+      //   pubkey_type: this.pubicKeyType,
+      //   pubkey_value: mainPubKey,
+      //   nickname,
+      //   avatar_url: `https://cdn.stamp.fyi/avatar/${address}?s=300`,
+      //   avatar_base64: '',
+      //   timestamp,
+      //   testnet_access_key: this.appKey,
+      // };
+      //
+      // try {
+      //   console.log(
+      //     JSON.stringify(payload),
+      //     'request to /api/user_register_v2/',
+      //   );
+      //   return await userRegisterRequest(payload);
+      // } catch (error: any) {
+      //   console.error(error, 'userRegisterRequest error');
+      //   throw new Error(error.message);
+      // }
     }
 
     if (mainPriKey && mainPubKey) {

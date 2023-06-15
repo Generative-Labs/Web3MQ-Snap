@@ -11,6 +11,7 @@ import {
   GetUserPublicProfileParams,
   GetPublicFollowerListParams,
   RegisterApiResponse,
+  FollowOperationApiParams, NewCommonGetListParams, SendFriendParams,
 } from '../types';
 
 export const createRoomRequest = async (payload: CreateRoomApiParams) => {
@@ -71,3 +72,37 @@ export const getPublicFollowingListRequest = async (
     params: payload,
   });
 };
+
+export const followOperationRequest = async (
+  payload: FollowOperationApiParams,
+) => {
+  return await Request.post('/api/following/', payload);
+};
+
+
+export const getContactListRequest = async (payload: NewCommonGetListParams) => {
+  return await Request.get('/api/user_follow_contacts/', {
+    params: payload,
+  });
+};
+
+export const getFollowerListRequest = async (payload: NewCommonGetListParams) => {
+  return await Request.get('/api/user_followers/', {
+    params: payload,
+  });
+};
+
+export const getFollowingListRequest = async (payload: NewCommonGetListParams) => {
+  return await Request.get('/api/user_following/', {
+    params: payload,
+  });
+};
+export const getMyFriendListRequest = async (payload: CommonGetListParams) => {
+  return await Request.get('/api/contacts/add_friends/', {
+    params: payload,
+  });
+};
+export const sendFriendRequest = async (payload: SendFriendParams) => {
+  return await Request.post('/api/contacts/add_friends/', payload);
+};
+
