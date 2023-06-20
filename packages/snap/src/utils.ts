@@ -5,6 +5,7 @@ import { EnvTypes } from './types';
 import { domainUrlList } from './core/config';
 import { getUserInfoRequest } from './api';
 import { Request } from './core/request';
+import { sha3_224 } from 'js-sha3';
 
 export {
   userLoginRequest,
@@ -170,7 +171,7 @@ export const renderMessagesList = async (msglist: any) => {
   });
 };
 
-export const transformAddress = async (walletAddress: string) => {
+export const transformAddress = async (walletAddress: string): Promise<string> => {
   if (walletAddress.toLowerCase().startsWith('0x')) {
     const { data } = await getUserInfoRequest({
       did_type: 'eth',
@@ -205,12 +206,10 @@ export const getStatesByKey = async (key: string) => {
     method: 'snap_manageState',
     params: { operation: 'get' },
   });
-  console.log(state, 'state');
 
   if (state === null || typeof state !== 'object') {
     return null;
   }
-  console.log(JSON.stringify(state), 'state - stringify');
   if (state[key]) {
     return state[key];
   }
@@ -230,6 +229,11 @@ export const getWeb3MQTempKeys = async () => {
     userid,
   };
 };
+
+export const getLocalUrl = async () => {
+  return ((await getStatesByKey('FAST_URL')) as string) || '';
+}
+
 export function newDateFormat(time: number, format?: string) {
   const t = new Date(time);
   format = format || 'Y-m-d h:i:s';
@@ -259,3 +263,11 @@ export function newDateFormat(time: number, format?: string) {
     return rt >= 10 || isAddZero(o) ? rt : `0${rt}`;
   });
 }
+export const GenerateMessageID = async (
+  from: string,
+  topic: string,
+  timestamp: number,
+  payload: Uint8Array,
+) => {
+  return sha3_224.update(from).update(topic).update(timestamp.toString()).update(payload).hex();
+};

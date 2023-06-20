@@ -8,13 +8,11 @@ export const request = async (
   const baseUrl = (await getStatesByKey('FAST_URL')) || '';
   const didKey = (await getStatesByKey('DID_KEY')) || '';
   const pubKey = (await getStatesByKey('PUBLIC_KEY')) || '';
-  console.log(`didKey: ${didKey}, pubKey： ${pubKey}`)
   const headers = {
     'content-type': 'application/json',
     'web3mq-request-pubkey': pubKey,
     didKey: didKey,
   };
-  console.log(customConfig.headers, 'customConfig.headers');
   const config = {
     method: body ? 'POST' : 'GET',
     mode: 'cors',
@@ -30,7 +28,6 @@ export const request = async (
   const Url = body
     ? `${baseUrl}${endpoint}`
     : `${baseUrl}${endpoint}?${qs.stringify(customConfig, { encode: true })}`;
-  console.log(Url, 'Url');
 
   return fetch(`${Url}`, config).then(async (response) => {
     if (response.status === 401) {

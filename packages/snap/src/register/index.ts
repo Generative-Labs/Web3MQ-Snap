@@ -37,6 +37,9 @@ import {
   GetRegisterSignContentParams,
   MainKeypairType,
   AccountType,
+  ConnectToWeb3MQParams,
+  GetRegisterSignContentResponse,
+  RegisterToWeb3MQParams,
 } from '../types';
 import { getEthAccount, signWithEth } from './eth';
 
@@ -94,7 +97,6 @@ export class Register {
       did_value,
       did_type,
     );
-    console.log(signature, 'signature - getMainKeypair');
     return await this.getMainKeypairBySignature(signature, password);
   };
 
@@ -149,9 +151,7 @@ export class Register {
     } = options;
     try {
       const timestamp = Date.now();
-
       const { PublicKey, PrivateKey } = await GenerateEd25519KeyPair();
-
       const signContent = sha3_224(
         userid + PublicKey + pubkeyExpiredTimestamp + timestamp,
       );
@@ -183,7 +183,6 @@ export class Register {
         pubkey_expired_timestamp: pubkeyExpiredTimestamp,
       };
       const loginRes = await userLoginRequest(payload);
-      console.log(loginRes, 'loginRes');
       return {
         tempPrivateKey: PrivateKey,
         tempPublicKey: PublicKey,
@@ -192,6 +191,7 @@ export class Register {
         pubkeyExpiredTimestamp,
       };
     } catch (error: any) {
+      console.log(error, 'error');
       throw new Error(error.message);
     }
   };
@@ -252,9 +252,7 @@ Nonce: ${magicString}`;
     if (secretKey.length !== 32) {
       throw new Error('Secret key must have 32 bytes');
     }
-    console.log('hahahaha-----');
     const publicKey = await ed.getPublicKey(secretKey);
-    console.log('hahahaha-----======');
     const AesKey = await GetAESBase64Key(password);
     const AesIv = AesKey.slice(0, 16);
     const encrytData = await aesGCMEncrypt(
@@ -272,7 +270,7 @@ Nonce: ${magicString}`;
 
   getRegisterSignContent = async (
     options: GetRegisterSignContentParams,
-  ): Promise<GetSignContentResponse> => {
+  ): Promise<GetRegisterSignContentResponse> => {
     const {
       mainPublicKey,
       didType,
@@ -299,144 +297,257 @@ Issued At: ${getCurrentDate()}`;
 
     this.registerSignContent = signContent;
     this.registerTime = timestamp;
-    return { signContent };
+    return { signContent, registerTime: timestamp };
   };
 
-  async connectWeb3MQNetwork(params: { password: string; nickname?: string }) {
-    const { password, nickname = '' } = params;
-    let mainPubKey = '';
-    let mainPriKey = '';
+  async registerToWeb3MQNetwork(payload: RegisterToWeb3MQParams) {
+    const {
+      walletType = 'eth',
+      walletAddress,
+      mainPublicKey,
+      mainPrivateKey,
+      nickname,
+      avatarUrl,
+      didPubkey,
+      registerTime,
+      registerSignContent,
+      signature,
+      password,
+      userid,
+    } = payload;
+
+    const params: RegisterParams = {
+      userid,
+      did_type: walletType,
+      did_value: walletAddress,
+      did_pubkey: didPubkey,
+      did_signature: signature,
+      signature_content: registerSignContent,
+      pubkey_type: this.pubicKeyType,
+      pubkey_value: mainPublicKey,
+      nickname,
+      avatar_url: avatarUrl,
+      avatar_base64: '',
+      timestamp: registerTime,
+      testnet_access_key: this.appKey,
+    };
+    try {
+      await userRegisterRequest(params);
+      await this.connectWeb3MQNetwork({
+        walletType: walletType,
+        walletAddress,
+        mainPublicKey,
+        mainPrivateKey,
+        password,
+      });
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
+  async connectWeb3MQNetwork(params: ConnectToWeb3MQParams) {
+    const {
+      walletType = 'eth',
+      walletAddress,
+      mainPublicKey,
+      mainPrivateKey,
+      password,
+    } = params;
+    let userid = params.userid;
+    if (!userid) {
+      const userInfo = await this.getUserInfo({
+        did_value: walletAddress,
+        did_type: walletType,
+      });
+      userid = userInfo.userid;
+    }
+    if (!userid) {
+      throw new Error('User not registered');
+    }
     const localAddress = (await getStatesByKey('WALLET_ADDRESS')) as string;
-    const { address } = await this.getAccount('eth');
+    let pubKey = '';
+    let priKey = '';
     if (
       localAddress &&
-      localAddress.toLocaleLowerCase() === address.toLocaleLowerCase()
+      localAddress.toLocaleLowerCase() === walletAddress.toLocaleLowerCase()
     ) {
-      mainPriKey = (await getStatesByKey('MAIN_PRIVATE_KEY')) as string;
-      mainPubKey = (await getStatesByKey('MAIN_PUBLIC_KEY')) as string;
+      priKey = (await getStatesByKey('MAIN_PRIVATE_KEY')) as string;
+      pubKey = (await getStatesByKey('MAIN_PUBLIC_KEY')) as string;
     }
-    console.log(mainPriKey, 'mainPriKey - local');
-    console.log(mainPubKey, 'mainPubKey - local');
-    const did_type: WalletType = 'eth';
-    const { userid, userExist } = await this.getUserInfo({
-      did_type,
-      did_value: address,
-    });
-    if (!mainPubKey || !mainPriKey) {
-      const { publicKey, secretKey } = await this.getMainKeypair({
-        password,
-        did_value: address,
-        did_type,
-      });
-      mainPriKey = secretKey;
-      mainPubKey = publicKey;
-    }
-    if (!userExist) {
-      const { signContent } = await this.getRegisterSignContent({
-        userid,
-        mainPublicKey: mainPubKey,
-        didType: did_type,
-        didValue: address,
-      });
-      const { sign: signRes, publicKey: did_pubkey = '' } = await this.sign(
-        signContent,
-        address,
-        did_type,
-      );
-      await this.register({
-        userid,
-        didValue: address,
-        mainPublicKey: mainPubKey,
-        did_pubkey,
-        didType: did_type,
-        nickname,
-        avatar_url: `https://cdn.stamp.fyi/avatar/${address}?s=300`,
-        signature: signRes,
-      });
-      // const pubkey_type = this.pubicKeyType;
-      // const timestamp = Date.now();
-      // const NonceContent = sha3_224(
-      //   userid + pubkey_type + mainPubKey + did_type + address + timestamp,
-      // );
-      // const signContent = `Web3MQ wants you to sign in with your Ethereum account:
-      //   ${address}
-      //   For Web3MQ register
-      //   Version: 1
-      //
-      //   Nonce: ${NonceContent}
-      //   Issued At: ${getCurrentDate()}`;
-      // const { sign: signRes, publicKey: did_pubkey = '' } = await this.sign(
-      //   signContent,
-      //   address,
-      //   did_type,
-      // );
-      // this.registerSignContent = signContent
-      // // await this.register({
-      // //   userid,
-      // //   didValue: address,
-      // //   mainPublicKey: mainPubKey,
-      // //   did_pubkey,
-      // //   didType: did_type,
-      // //   nickname,
-      // //   avatar_url: `https://cdn.stamp.fyi/avatar/${address}?s=300`,
-      // //   signature: signRes,
-      // // });
-      // const payload: RegisterParams = {
-      //   userid,
-      //   did_type,
-      //   did_value: address,
-      //   did_pubkey,
-      //   did_signature: signRes,
-      //   signature_content: this.registerSignContent,
-      //   pubkey_type: this.pubicKeyType,
-      //   pubkey_value: mainPubKey,
-      //   nickname,
-      //   avatar_url: `https://cdn.stamp.fyi/avatar/${address}?s=300`,
-      //   avatar_base64: '',
-      //   timestamp,
-      //   testnet_access_key: this.appKey,
-      // };
-      //
-      // try {
-      //   console.log(
-      //     JSON.stringify(payload),
-      //     'request to /api/user_register_v2/',
-      //   );
-      //   return await userRegisterRequest(payload);
-      // } catch (error: any) {
-      //   console.error(error, 'userRegisterRequest error');
-      //   throw new Error(error.message);
-      // }
+    if (mainPublicKey && mainPrivateKey) {
+      pubKey = mainPublicKey;
+      priKey = mainPrivateKey;
     }
 
-    if (mainPriKey && mainPubKey) {
-      const {
-        tempPrivateKey,
-        tempPublicKey,
-        pubkeyExpiredTimestamp,
-        mainPrivateKey,
-        mainPublicKey,
-      } = await this.login({
-        mainPrivateKey: mainPriKey,
-        mainPublicKey: mainPubKey,
-        password,
-        didType: did_type,
-        didValue: address,
-        userid,
-      });
-      await saveStates('userid', userid);
-      await saveStates('PRIVATE_KEY', tempPrivateKey);
-      await saveStates('PUBLIC_KEY', tempPublicKey);
-      await saveStates('WALLET_ADDRESS', address);
-      await saveStates(`MAIN_PRIVATE_KEY`, mainPriKey);
-      await saveStates(`MAIN_PUBLIC_KEY`, mainPubKey);
-      await saveStates(`DID_KEY`, `${did_type}:${address}`);
-      await saveStates(
-        'PUBKEY_EXPIRED_TIMESTAMP',
-        String(pubkeyExpiredTimestamp),
-      );
+    if (!pubKey || !priKey) {
+      throw new Error('main keys is required');
     }
-    console.log('main keys create error');
-    return null;
+    const payload = {
+      mainPrivateKey: priKey,
+      mainPublicKey: pubKey,
+      password,
+      didType: walletType,
+      didValue: walletAddress,
+      userid,
+      pubkeyExpiredTimestamp: params.pubkeyExpiredTimestamp || 0,
+    };
+    const { tempPrivateKey, tempPublicKey, pubkeyExpiredTimestamp } =
+      await this.login(payload);
+    await saveStates('userid', userid);
+    await saveStates('PRIVATE_KEY', tempPrivateKey);
+    await saveStates('PUBLIC_KEY', tempPublicKey);
+    await saveStates('WALLET_ADDRESS', walletAddress);
+    await saveStates(`MAIN_PRIVATE_KEY`, priKey);
+    await saveStates(`MAIN_PUBLIC_KEY`, pubKey);
+    await saveStates(`DID_KEY`, `${walletType}:${walletAddress}`);
+    await saveStates(
+      'PUBKEY_EXPIRED_TIMESTAMP',
+      String(pubkeyExpiredTimestamp),
+    );
   }
+
+  // async connectWeb3MQNetwork(params: {
+  //   password: string;
+  //   nickname?: string;
+  //   address: string;
+  // }) {
+  //   const { password, nickname = '', address } = params;
+  //   let mainPubKey = '';
+  //   let mainPriKey = '';
+  //   const localAddress = (await getStatesByKey('WALLET_ADDRESS')) as string;
+  //   const { address: a } = await this.getAccount('eth');
+  //   console.log(a, 'a');
+  //   // const address: string = '0x7236b0F4F1409AFdC7C9fC446943A7b84b6513a1'
+  //   console.log(address, 'address');
+  //   if (
+  //     localAddress &&
+  //     localAddress.toLocaleLowerCase() === address.toLocaleLowerCase()
+  //   ) {
+  //     mainPriKey = (await getStatesByKey('MAIN_PRIVATE_KEY')) as string;
+  //     mainPubKey = (await getStatesByKey('MAIN_PUBLIC_KEY')) as string;
+  //   }
+  //   console.log(mainPriKey, 'mainPriKey - local');
+  //   console.log(mainPubKey, 'mainPubKey - local');
+  //   const did_type: WalletType = 'eth';
+  //   const { userid, userExist } = await this.getUserInfo({
+  //     did_type,
+  //     did_value: address,
+  //   });
+  //   if (!mainPubKey || !mainPriKey) {
+  //     const { publicKey, secretKey } = await this.getMainKeypair({
+  //       password,
+  //       did_value: address,
+  //       did_type,
+  //     });
+  //     mainPriKey = secretKey;
+  //     mainPubKey = publicKey;
+  //   }
+  //   if (!userExist) {
+  //     const { signContent } = await this.getRegisterSignContent({
+  //       userid,
+  //       mainPublicKey: mainPubKey,
+  //       didType: did_type,
+  //       didValue: address,
+  //     });
+  //     const { sign: signRes, publicKey: did_pubkey = '' } = await this.sign(
+  //       signContent,
+  //       address,
+  //       did_type,
+  //     );
+  //     await this.register({
+  //       userid,
+  //       didValue: address,
+  //       mainPublicKey: mainPubKey,
+  //       did_pubkey,
+  //       didType: did_type,
+  //       nickname,
+  //       avatar_url: `https://cdn.stamp.fyi/avatar/${address}?s=300`,
+  //       signature: signRes,
+  //     });
+  //     // const pubkey_type = this.pubicKeyType;
+  //     // const timestamp = Date.now();
+  //     // const NonceContent = sha3_224(
+  //     //   userid + pubkey_type + mainPubKey + did_type + address + timestamp,
+  //     // );
+  //     // const signContent = `Web3MQ wants you to sign in with your Ethereum account:
+  //     //   ${address}
+  //     //   For Web3MQ register
+  //     //   Version: 1
+  //     //
+  //     //   Nonce: ${NonceContent}
+  //     //   Issued At: ${getCurrentDate()}`;
+  //     // const { sign: signRes, publicKey: did_pubkey = '' } = await this.sign(
+  //     //   signContent,
+  //     //   address,
+  //     //   did_type,
+  //     // );
+  //     // this.registerSignContent = signContent
+  //     // // await this.register({
+  //     // //   userid,
+  //     // //   didValue: address,
+  //     // //   mainPublicKey: mainPubKey,
+  //     // //   did_pubkey,
+  //     // //   didType: did_type,
+  //     // //   nickname,
+  //     // //   avatar_url: `https://cdn.stamp.fyi/avatar/${address}?s=300`,
+  //     // //   signature: signRes,
+  //     // // });
+  //     // const payload: RegisterParams = {
+  //     //   userid,
+  //     //   did_type,
+  //     //   did_value: address,
+  //     //   did_pubkey,
+  //     //   did_signature: signRes,
+  //     //   signature_content: this.registerSignContent,
+  //     //   pubkey_type: this.pubicKeyType,
+  //     //   pubkey_value: mainPubKey,
+  //     //   nickname,
+  //     //   avatar_url: `https://cdn.stamp.fyi/avatar/${address}?s=300`,
+  //     //   avatar_base64: '',
+  //     //   timestamp,
+  //     //   testnet_access_key: this.appKey,
+  //     // };
+  //     //
+  //     // try {
+  //     //   console.log(
+  //     //     JSON.stringify(payload),
+  //     //     'request to /api/user_register_v2/',
+  //     //   );
+  //     //   return await userRegisterRequest(payload);
+  //     // } catch (error: any) {
+  //     //   console.error(error, 'userRegisterRequest error');
+  //     //   throw new Error(error.message);
+  //     // }
+  //   }
+  //
+  //   if (mainPriKey && mainPubKey) {
+  //     const {
+  //       tempPrivateKey,
+  //       tempPublicKey,
+  //       pubkeyExpiredTimestamp,
+  //       mainPrivateKey,
+  //       mainPublicKey,
+  //     } = await this.login({
+  //       mainPrivateKey: mainPriKey,
+  //       mainPublicKey: mainPubKey,
+  //       password,
+  //       didType: did_type,
+  //       didValue: address,
+  //       userid,
+  //     });
+  //     await saveStates('userid', userid);
+  //     await saveStates('PRIVATE_KEY', tempPrivateKey);
+  //     await saveStates('PUBLIC_KEY', tempPublicKey);
+  //     await saveStates('WALLET_ADDRESS', address);
+  //     await saveStates(`MAIN_PRIVATE_KEY`, mainPriKey);
+  //     await saveStates(`MAIN_PUBLIC_KEY`, mainPubKey);
+  //     await saveStates(`DID_KEY`, `${did_type}:${address}`);
+  //     await saveStates(
+  //       'PUBKEY_EXPIRED_TIMESTAMP',
+  //       String(pubkeyExpiredTimestamp),
+  //     );
+  //   }
+  //   console.log('main keys create error');
+  //   return null;
+  // }
 }

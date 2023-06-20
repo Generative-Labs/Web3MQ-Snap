@@ -46,6 +46,7 @@ export type GetMainKeypairParams = {
 
 export type EnvTypes = 'dev' | 'test';
 
+
 export type RegisterParams = {
   userid: string;
   did_type: string;
@@ -139,6 +140,10 @@ export type WalletSignRes = {
   publicKey?: string;
 };
 
+export type GetRegisterSignContentResponse = {
+  signContent: string;
+  registerTime: number
+};
 export type GetSignContentResponse = {
   signContent: string;
 };
@@ -186,6 +191,16 @@ export type NewBaseParams = {
   timestamp: number;
 };
 
+export interface SendMessageParams extends BaseParams{
+  nodeid: string
+  payload_type: string
+  paylaod: string
+  need_stroe: boolean
+  cipher_suite: string
+  content_topic: string
+  messageid: string
+}
+
 export interface NewCommonGetListParams extends NewBaseParams, PageParams {}
 
 export interface SendFriendParams extends BaseParams {
@@ -210,4 +225,28 @@ export interface FollowOperationParams {
   targetUserid: string;
   action: 'follow' | 'cancel';
   didType: WalletType;
+}
+
+export type ConnectToWeb3MQParams =  {
+  mainPrivateKey?: string; // in snap state || register
+  mainPublicKey?: string; // in snap state  || register
+  walletType?: WalletType;
+  walletAddress: string;
+  password: string;
+  pubkeyExpiredTimestamp?: number;
+  userid?: string
+}
+export type RegisterToWeb3MQParams =  {
+  mainPrivateKey: string; // in snap state || register
+  mainPublicKey: string; // in snap state  || register
+  walletType?: WalletType;
+  walletAddress: string;
+  password: string;
+  signature: string; // require by register
+  didPubkey?: string; // require by starknet
+  registerSignContent: string; // require by register
+  registerTime: number; // require by register
+  nickname?: string;
+  avatarUrl?: string;
+  userid: string;
 }

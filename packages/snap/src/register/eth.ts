@@ -16,13 +16,11 @@ export const getEthAccount = async () => {
   }
 
   try {
-    console.log(ethereum, 'ethereum');
     //@ts-ignore
     let addresses = await ethereum.request({
       //@ts-ignore
       method: 'eth_accounts',
     });
-    console.log(addresses, 'addresses');
     //@ts-ignore
     if (addresses && addresses.length > 0) {
       //@ts-ignore

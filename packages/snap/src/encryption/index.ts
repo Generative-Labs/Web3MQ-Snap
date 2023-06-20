@@ -69,6 +69,16 @@ export const Base64StringToUint8 = (base64: string) => {
   }
   return bytes;
 };
+const ByteArrayToHexString = (byteArray: Uint8Array) => {
+  return Array.from(byteArray, function (byte) {
+    return ('0' + (byte & 0xff).toString(16)).slice(-2);
+  }).join('');
+};
+
+export const Uint8ArrayToBase64String = (u8a: Uint8Array) => {
+  return Buffer.from(u8a).toString('base64')
+  // return window.btoa(String.fromCharCode.apply(String, u8a));
+};
 
 export const GetAESBase64Key = async (hex_key: string) => {
   let master_key = await crypto.subtle.importKey(

@@ -1,17 +1,26 @@
-import { PageParams } from '../types';
+import { PageParams, SendMessageParams } from '../types';
 import {
+  GenerateMessageID,
   getDataSignature,
   getWeb3MQTempKeys,
   renderMessagesList,
+  transformAddress,
 } from '../utils';
-import { getMessageListRequest, searchUsersRequest } from '../api';
+import {
+  getMessageListRequest,
+  getNodeInfoRequest,
+  searchUsersRequest,
+  sendMessageRequest,
+} from '../api';
+import { Uint8ArrayToBase64String } from '../encryption';
 
 export class Message {
   static async getMessageList(option: PageParams, topic: string) {
     const { PrivateKey, userid } = await getWeb3MQTempKeys();
-    if (topic) {
+    const contentTopic = await transformAddress(topic);
+    if (contentTopic) {
       const timestamp = Date.now();
-      const msg = userid + topic + timestamp;
+      const msg = userid + contentTopic + timestamp;
       const web3mq_signature = await getDataSignature(PrivateKey, msg);
       const {
         data: { result = [] },
@@ -19,7 +28,7 @@ export class Message {
         userid,
         timestamp,
         web3mq_signature,
-        topic,
+        topic: contentTopic,
         ...option,
       });
       const data = await renderMessagesList(result);
@@ -43,15 +52,41 @@ export class Message {
     return result;
   }
 
-  // async sendMessage(msg: string, userId?: string) {
-  //   const { keys } = this._client;
-  //   const topicId = userId && (await transformAddress(userId));
-  //
-  //   if (topicId) {
-  //     this.msg_text = msg;
-  //     const { concatArray } = await sendMessageCommand(keys, topicId, msg, connect.nodeId);
-  //     connect.send(concatArray);
-  //     return true;
-  //   }
-  // }
+  static async sendMessage(msg: string, targetTopic: string) {
+    console.log('sendMessage Called');
+    const { userid, PrivateKey, PublicKey } = await getWeb3MQTempKeys();
+    const topic = await transformAddress(targetTopic);
+    if (!topic) {
+      throw new Error('topic error');
+    }
+    const timestamp = Date.now();
+
+    const { data } = await getNodeInfoRequest();
+    const nodeId = data.Id || '';
+
+    const cipherSuite = 'NONE';
+    const byteData = new TextEncoder().encode(msg);
+    console.log(byteData, 'byteData');
+
+    const msgid = await GenerateMessageID(userid, topic, timestamp, byteData);
+    const signContent = msgid + userid + topic + nodeId + timestamp.toString();
+    const web3mq_signature = await getDataSignature(PrivateKey, signContent);
+
+    const msgReq: SendMessageParams = {
+      nodeid: nodeId,
+      payload_type: 'text/plain; charset=utf-8',
+      paylaod: Uint8ArrayToBase64String(byteData),
+      need_stroe: true,
+      cipher_suite: cipherSuite,
+      content_topic: topic,
+      messageid: msgid,
+      userid,
+      timestamp,
+      web3mq_signature,
+    };
+
+    const res = await sendMessageRequest(msgReq);
+    console.log(res, 'res');
+    return res;
+  }
 }
