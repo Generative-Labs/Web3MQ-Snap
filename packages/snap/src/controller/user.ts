@@ -1,10 +1,11 @@
 import { Client } from '../client';
-import { getLocalUrl, getStatesByKey, getWeb3MQTempKeys } from '../utils';
+import {
+  DefaultEnv,
+  getStatesByKey,
+} from '../utils';
 import { Message } from '../message';
 import {
   ConnectToWeb3MQParams,
-  GetUserInfoParams,
-  RegisterParams,
   RegisterToWeb3MQParams,
   WalletType,
 } from '../types';
@@ -19,7 +20,7 @@ export async function checkUserExist(payload: { address: string }) {
   try {
     const { address } = payload;
     if (!Client.register) {
-      await Client.init({ env: 'dev' });
+      await Client.init({ env: DefaultEnv });
     }
     return await Client.register.getUserInfo({
       did_type: 'eth',
@@ -39,7 +40,7 @@ export async function getMainKeySignContent(payload: {
     const { password, address, walletType = 'eth' } = payload;
 
     if (!Client.register) {
-      await Client.init({ env: 'dev' });
+      await Client.init({ env: DefaultEnv });
     }
     return await Client.register.getMainKeypairSignContent({
       password,
@@ -58,7 +59,7 @@ export async function getMainKeypairBySignature(payload: {
   try {
     const { password, signature } = payload;
     if (!Client.register) {
-      await Client.init({ env: 'dev' });
+      await Client.init({ env: DefaultEnv });
     }
     return await Client.register.getMainKeypairBySignature(signature, password);
   } catch (e: any) {
@@ -74,7 +75,7 @@ export async function getRegisterSignContent(payload: {
 }) {
   try {
     if (!Client.register) {
-      await Client.init({ env: 'dev' });
+      await Client.init({ env: DefaultEnv });
     }
     const { userid, mainPublicKey, didValue, didType = 'eth' } = payload;
     return await Client.register.getRegisterSignContent({
@@ -103,7 +104,7 @@ export async function exportWeb3MQKeys() {
 export async function registerToWeb3MQNetwork(payload: RegisterToWeb3MQParams) {
   try {
     if (!Client.register) {
-      await Client.init({ env: 'dev' });
+      await Client.init({ env: DefaultEnv });
     }
     await Client.register.registerToWeb3MQNetwork(payload);
   } catch (e: any) {
@@ -114,7 +115,7 @@ export async function registerToWeb3MQNetwork(payload: RegisterToWeb3MQParams) {
 export async function connectToWeb3MQ(payload: ConnectToWeb3MQParams) {
   try {
     if (!Client.register) {
-      await Client.init({ env: 'dev' });
+      await Client.init({ env: DefaultEnv });
     }
     await Client.register.connectWeb3MQNetwork(payload);
   } catch (e: any) {

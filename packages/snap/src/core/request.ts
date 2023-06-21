@@ -25,9 +25,14 @@ export const request = async (
   if (body) {
     config.body = JSON.stringify(body);
   }
-  const Url = body
+  let Url = body
     ? `${baseUrl}${endpoint}`
     : `${baseUrl}${endpoint}?${qs.stringify(customConfig, { encode: true })}`;
+  if (endpoint.indexOf('https://') !== -1) {
+    Url = body
+      ? endpoint
+      : `${endpoint}?${qs.stringify(customConfig, { encode: true })}`;
+  }
 
   return fetch(`${Url}`, config).then(async (response) => {
     if (response.status === 401) {
@@ -36,7 +41,7 @@ export const request = async (
 
     if (response.status === 200) {
       const res = await response.json();
-      console.log(res, 'fetch resp')
+      console.log(res, 'fetch resp');
       if (res.code !== 0) {
         throw new Error(res.msg);
       }
@@ -44,7 +49,7 @@ export const request = async (
       // eslint-disable-next-line consistent-return
       return res;
     }
-    console.log(response, 'fetch error')
+    console.log(response, 'fetch error');
     const errorMessage = await response.text();
     return Promise.reject(new Error(errorMessage));
   });

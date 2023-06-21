@@ -171,7 +171,9 @@ export const renderMessagesList = async (msglist: any) => {
   });
 };
 
-export const transformAddress = async (walletAddress: string): Promise<string> => {
+export const transformAddress = async (
+  walletAddress: string,
+): Promise<string> => {
   if (walletAddress.toLowerCase().startsWith('0x')) {
     const { data } = await getUserInfoRequest({
       did_type: 'eth',
@@ -232,7 +234,7 @@ export const getWeb3MQTempKeys = async () => {
 
 export const getLocalUrl = async () => {
   return ((await getStatesByKey('FAST_URL')) as string) || '';
-}
+};
 
 export function newDateFormat(time: number, format?: string) {
   const t = new Date(time);
@@ -263,11 +265,20 @@ export function newDateFormat(time: number, format?: string) {
     return rt >= 10 || isAddZero(o) ? rt : `0${rt}`;
   });
 }
+
 export const GenerateMessageID = async (
   from: string,
   topic: string,
   timestamp: number,
   payload: Uint8Array,
 ) => {
-  return sha3_224.update(from).update(topic).update(timestamp.toString()).update(payload).hex();
+  return sha3_224
+    .update(from)
+    .update(topic)
+    .update(timestamp.toString())
+    .update(payload)
+    .hex();
 };
+
+export const DefaultEnv = 'test';
+// export const DefaultEnv = 'dev'
