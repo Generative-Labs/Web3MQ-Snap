@@ -191,11 +191,11 @@ export type NewBaseParams = {
   timestamp: number;
 };
 
-export interface SendMessageParams extends BaseParams{
+export interface SendMessageParams extends NewBaseParams{
   nodeid: string
   payload_type: string
-  paylaod: string
-  need_stroe: boolean
+  payload: string
+  need_store: boolean
   cipher_suite: string
   content_topic: string
   messageid: string

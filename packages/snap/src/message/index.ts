@@ -70,19 +70,19 @@ export class Message {
 
     const msgid = await GenerateMessageID(userid, topic, timestamp, byteData);
     const signContent = msgid + userid + topic + nodeId + timestamp.toString();
-    const web3mq_signature = await getDataSignature(PrivateKey, signContent);
+    const web3mq_user_signature  = await getDataSignature(PrivateKey, signContent);
 
     const msgReq: SendMessageParams = {
       nodeid: nodeId,
       payload_type: 'text/plain; charset=utf-8',
-      paylaod: Uint8ArrayToBase64String(byteData),
-      need_stroe: true,
+      payload: Uint8ArrayToBase64String(byteData),
+      need_store: true,
       cipher_suite: cipherSuite,
       content_topic: topic,
       messageid: msgid,
       userid,
       timestamp,
-      web3mq_signature,
+      web3mq_user_signature ,
     };
 
     const res = await sendMessageRequest(msgReq);

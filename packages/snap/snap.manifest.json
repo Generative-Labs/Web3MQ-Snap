@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "An example Snap written in TypeScript.",
   "proposedName": "TypeScript Example Snap",
   "repository": {
@@ -7,7 +7,7 @@
     "url": "https://github.com/MetaMask/template-snap-monorepo.git"
   },
   "source": {
-    "shasum": "XEDSaqUPSFM9bEwdKrTDKqK0T3W54hHjo+T+hs27X08=",
+    "shasum": "4D8j2wptMwJQl2i5AjKSMcmfgu7dt60Tsx7WagA5tsA=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
