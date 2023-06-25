@@ -13,7 +13,7 @@ import {
   RegisterApiResponse,
   FollowOperationApiParams,
   NewCommonGetListParams,
-  SendFriendParams, SendMessageParams,
+  SendFriendParams, SendMessageParams, GetContactListApiParams,
 } from '../types';
 
 export const createRoomRequest = async (payload: CreateRoomApiParams) => {
@@ -90,7 +90,7 @@ export const followOperationRequest = async (
 };
 
 export const getContactListRequest = async (
-  payload: NewCommonGetListParams,
+  payload: GetContactListApiParams,
 ) => {
   return await Request.get('/api/user_follow_contacts/', {
     params: payload,

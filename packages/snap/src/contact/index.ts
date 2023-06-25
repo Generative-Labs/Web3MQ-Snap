@@ -35,13 +35,12 @@ export class Contact {
 
     const { data } = await getContactListRequest({
       userid,
+      follow_status: 'follow_each',
       web3mq_user_signature,
       timestamp,
       ...option,
     });
-    return data.user_list.filter(
-      (item: ContactListItemType) => item.follow_status === 'follow_each',
-    );
+    return data
   }
 
   static async getFollowerList(
@@ -60,7 +59,7 @@ export class Contact {
       timestamp,
       ...option,
     });
-    return data.user_list;
+    return data
   }
 
   static async getFollowingList(
@@ -79,7 +78,7 @@ export class Contact {
       timestamp,
       ...option,
     });
-    return data.user_list;
+    return data
   }
 
   static async sendFriend(

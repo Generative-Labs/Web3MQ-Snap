@@ -204,6 +204,10 @@ export interface SendMessageParams extends NewBaseParams {
 
 export interface NewCommonGetListParams extends NewBaseParams, PageParams {}
 
+export interface GetContactListApiParams extends NewBaseParams, PageParams {
+  follow_status?: 'following' | 'follow_each' | 'follower'
+}
+
 export interface SendFriendParams extends BaseParams {
   content: string;
   target_userid: string;
