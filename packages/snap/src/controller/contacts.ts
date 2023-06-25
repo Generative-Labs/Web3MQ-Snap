@@ -1,6 +1,6 @@
 import {
   ContactListItemType,
-  FollowOperationParams,
+  FollowOperationParams, GetFollowSignContentParams,
   PageParams,
 } from '../types';
 import { Contact } from '../contact';
@@ -34,13 +34,20 @@ export const getFollowingList = async (
 };
 
 export type RequestFollowRpcDto = {
-  target_id: string;
+  targetId: string;
   content?: string;
 };
 export const requestFollow = async (payload: RequestFollowRpcDto) => {
   try {
-    const { target_id, content = '' } = payload;
-    return await Contact.sendFriend(target_id, content);
+    const { targetId, content = '' } = payload;
+    return await Contact.sendFriend(targetId, content);
+  } catch (e) {
+    throw new Error(e);
+  }
+};
+export const getFollowSignContent = async (payload: GetFollowSignContentParams) => {
+  try {
+    return await Contact.getFollowSignContent(payload);
   } catch (e) {
     throw new Error(e);
   }

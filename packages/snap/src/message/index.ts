@@ -16,12 +16,12 @@ import { Uint8ArrayToBase64String } from '../encryption';
 
 export class Message {
   static async getMessageList(option: PageParams, topic: string) {
-    const { PrivateKey, userid } = await getWeb3MQTempKeys();
+    const { privateKey, userid } = await getWeb3MQTempKeys();
     const contentTopic = await transformAddress(topic);
     if (contentTopic) {
       const timestamp = Date.now();
       const msg = userid + contentTopic + timestamp;
-      const web3mq_signature = await getDataSignature(PrivateKey, msg);
+      const web3mq_signature = await getDataSignature(privateKey, msg);
       const {
         data: { result = [] },
       } = await getMessageListRequest({
@@ -37,10 +37,10 @@ export class Message {
   }
 
   static async getTargetUserId(address: string) {
-    const { PrivateKey, userid } = await getWeb3MQTempKeys();
+    const { privateKey, userid } = await getWeb3MQTempKeys();
     const timestamp = Date.now();
     const msg = userid + address + timestamp;
-    const web3mq_signature = await getDataSignature(PrivateKey, msg);
+    const web3mq_signature = await getDataSignature(privateKey, msg);
     const {
       data: { result = [] },
     } = await searchUsersRequest({
@@ -54,7 +54,7 @@ export class Message {
 
   static async sendMessage(msg: string, targetTopic: string) {
     console.log('sendMessage Called');
-    const { userid, PrivateKey, PublicKey } = await getWeb3MQTempKeys();
+    const { userid, privateKey } = await getWeb3MQTempKeys();
     const topic = await transformAddress(targetTopic);
     if (!topic) {
       throw new Error('topic error');
@@ -70,7 +70,10 @@ export class Message {
 
     const msgid = await GenerateMessageID(userid, topic, timestamp, byteData);
     const signContent = msgid + userid + topic + nodeId + timestamp.toString();
-    const web3mq_user_signature  = await getDataSignature(PrivateKey, signContent);
+    const web3mq_user_signature = await getDataSignature(
+      privateKey,
+      signContent,
+    );
 
     const msgReq: SendMessageParams = {
       nodeid: nodeId,
@@ -82,7 +85,7 @@ export class Message {
       messageid: msgid,
       userid,
       timestamp,
-      web3mq_user_signature ,
+      web3mq_user_signature,
     };
 
     const res = await sendMessageRequest(msgReq);

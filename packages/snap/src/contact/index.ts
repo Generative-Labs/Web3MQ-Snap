@@ -1,8 +1,8 @@
 import { sha3_224 } from 'js-sha3';
-import { Client } from '../client';
 import {
   ContactListItemType,
   FollowOperationParams,
+  GetFollowSignContentParams,
   PageParams,
   ServiceResponse,
 } from '../types';
@@ -25,11 +25,11 @@ export class Contact {
   static async getContactList(
     option: PageParams,
   ): Promise<ContactListItemType[]> {
-    const { userid, PrivateKey } = await getWeb3MQTempKeys();
+    const { userid, privateKey } = await getWeb3MQTempKeys();
     const timestamp = Date.now();
     const signContent = userid + timestamp;
     const web3mq_user_signature = await getDataSignature(
-      PrivateKey,
+      privateKey,
       signContent,
     );
 
@@ -47,11 +47,11 @@ export class Contact {
   static async getFollowerList(
     option: PageParams,
   ): Promise<ContactListItemType[]> {
-    const { userid, PrivateKey } = await getWeb3MQTempKeys();
+    const { userid, privateKey } = await getWeb3MQTempKeys();
     const timestamp = Date.now();
     const signContent = userid + timestamp;
     const web3mq_user_signature = await getDataSignature(
-      PrivateKey,
+      privateKey,
       signContent,
     );
     const { data } = await getFollowerListRequest({
@@ -66,11 +66,11 @@ export class Contact {
   static async getFollowingList(
     option: PageParams,
   ): Promise<ContactListItemType[]> {
-    const { userid, PrivateKey } = await getWeb3MQTempKeys();
+    const { userid, privateKey } = await getWeb3MQTempKeys();
     const timestamp = Date.now();
     const signContent = userid + timestamp;
     const web3mq_user_signature = await getDataSignature(
-      PrivateKey,
+      privateKey,
       signContent,
     );
     const { data } = await getFollowingListRequest({
@@ -83,14 +83,14 @@ export class Contact {
   }
 
   static async sendFriend(
-    target_id: string,
+    targetId: string,
     content: string = '',
   ): Promise<ServiceResponse> {
-    const { userid, PrivateKey } = await getWeb3MQTempKeys();
-    const target_userid = await transformAddress(target_id);
+    const { userid, privateKey } = await getWeb3MQTempKeys();
+    const target_userid = await transformAddress(targetId);
     const timestamp = Date.now();
     const signContent = userid + target_userid + content + timestamp;
-    const web3mq_signature = await getDataSignature(PrivateKey, signContent);
+    const web3mq_signature = await getDataSignature(privateKey, signContent);
 
     return await sendFriendRequest({
       content,
@@ -101,42 +101,55 @@ export class Contact {
     });
   }
 
-  static async followOperation(
-    params: FollowOperationParams,
-  ): Promise<ServiceResponse> {
-    const { address, targetUserid, action, didType } = params;
+  static async getFollowSignContent(params: GetFollowSignContentParams) {
+    const { walletAddress, targetUserid, action, walletType } = params;
     const { userid } = await getWeb3MQTempKeys();
-    const timestamp = Date.now();
-    let nonce = sha3_224(userid + action + targetUserid + timestamp);
-    const sign_content = `
-    Web3MQ wants you to sign in with your ${didType} account:
-    ${address}
+    const signTimestamp = Date.now();
+    let nonce = sha3_224(userid + action + targetUserid + signTimestamp);
+    const signContent = `
+    Web3MQ wants you to sign in with your ${walletType} account:
+    ${walletAddress}
 
     For follow signature
 
     Nonce: ${nonce}
-    Issued At: ${newDateFormat(timestamp, 'Y/m/d h:i')}`;
-    const { sign: did_signature, publicKey: did_pubkey = '' } =
-      await Client.register.sign(sign_content, address, didType);
-    const data = await followOperationRequest({
-      did_pubkey,
-      did_signature,
-      sign_content,
-      userid,
-      timestamp,
-      address,
+    Issued At: ${newDateFormat(signTimestamp, 'Y/m/d h:i')}`;
+    return { signContent, signTimestamp };
+  }
+
+  static async followOperation(
+    params: FollowOperationParams,
+  ): Promise<ServiceResponse> {
+    const {
+      targetId,
       action,
-      did_type: didType,
-      target_userid: targetUserid,
+      walletType = 'eth',
+      signature,
+      signContent,
+      signTimestamp,
+      didPubKey ='',
+    } = params;
+    const { userid, walletAddress } = await getWeb3MQTempKeys();
+    const target_userid = await transformAddress(targetId);
+    const data = await followOperationRequest({
+      did_pubkey: didPubKey,
+      did_signature: signature,
+      sign_content: signContent,
+      userid,
+      timestamp: signTimestamp,
+      address: walletAddress,
+      action,
+      did_type: walletType,
+      target_userid,
     });
     return data as any;
   }
 
   static async getMyFriendRequestList(option: PageParams) {
-    const { userid, PrivateKey } = await getWeb3MQTempKeys();
+    const { userid, privateKey } = await getWeb3MQTempKeys();
     const timestamp = Date.now();
     const signContent = userid + timestamp;
-    const web3mq_signature = await getDataSignature(PrivateKey, signContent);
+    const web3mq_signature = await getDataSignature(privateKey, signContent);
 
     const {
       data: { result = [] },

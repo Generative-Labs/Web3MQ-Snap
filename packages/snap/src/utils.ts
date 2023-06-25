@@ -219,16 +219,29 @@ export const getStatesByKey = async (key: string) => {
 };
 
 export const getWeb3MQTempKeys = async () => {
-  const PrivateKey = ((await getStatesByKey('PRIVATE_KEY')) as string) || '';
-  const PublicKey = ((await getStatesByKey('PUBLIC_KEY')) as string) || '';
+  const privateKey = ((await getStatesByKey('PRIVATE_KEY')) as string) || '';
+  const publicKey = ((await getStatesByKey('PUBLIC_KEY')) as string) || '';
+  const pubkeyExpiredTimestamp = ((await getStatesByKey('PUBKEY_EXPIRED_TIMESTAMP')) as string) || '';
   const userid = ((await getStatesByKey('userid')) as string) || '';
-  if (!PrivateKey && !PublicKey && !userid) {
+  const walletAddress =
+    ((await getStatesByKey('WALLET_ADDRESS')) as string) || '';
+  const mainPrivateKey =
+    ((await getStatesByKey('MAIN_PRIVATE_KEY')) as string) || '';
+  const mainPublicKey =
+    ((await getStatesByKey('MAIN_PUBLIC_KEY')) as string) || '';
+  const didKey = ((await getStatesByKey('DID_KEY')) as string) || '';
+  if (!privateKey && !publicKey && !userid) {
     throw new Error('The PrivateKey and PublicKey is required!');
   }
   return {
-    PrivateKey,
-    PublicKey,
+    privateKey,
+    publicKey,
     userid,
+    walletAddress,
+    mainPrivateKey,
+    mainPublicKey,
+    didKey,
+    pubkeyExpiredTimestamp,
   };
 };
 
@@ -280,5 +293,5 @@ export const GenerateMessageID = async (
     .hex();
 };
 
-export const DefaultEnv = 'test';
-// export const DefaultEnv = 'dev'
+// export const DefaultEnv = 'test';
+export const DefaultEnv = 'dev'

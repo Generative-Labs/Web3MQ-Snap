@@ -1,6 +1,6 @@
 export type PageParams = {
-  page?: number;
-  size?: number;
+  page: number;
+  size: number;
 };
 
 export type AccountType = {
@@ -45,7 +45,6 @@ export type GetMainKeypairParams = {
 };
 
 export type EnvTypes = 'dev' | 'test';
-
 
 export type RegisterParams = {
   userid: string;
@@ -142,7 +141,7 @@ export type WalletSignRes = {
 
 export type GetRegisterSignContentResponse = {
   signContent: string;
-  registerTime: number
+  registerTime: number;
 };
 export type GetSignContentResponse = {
   signContent: string;
@@ -151,8 +150,8 @@ export type GetSignContentResponse = {
 export type GetRegisterSignContentParams = {
   userid: string;
   mainPublicKey: string;
-  didType: WalletType;
-  didValue: string;
+  walletType: WalletType;
+  walletAddress: string;
   signContentURI?: string;
 };
 
@@ -179,26 +178,28 @@ export type WalletBaseParams = {
   sign_content: string;
   timestamp: number;
 };
+
 export interface FollowOperationApiParams extends WalletBaseParams {
   address: string;
   target_userid: string;
   action: 'follow' | 'cancel';
   did_type: WalletType;
 }
+
 export type NewBaseParams = {
   userid: string;
   web3mq_user_signature: string;
   timestamp: number;
 };
 
-export interface SendMessageParams extends NewBaseParams{
-  nodeid: string
-  payload_type: string
-  payload: string
-  need_store: boolean
-  cipher_suite: string
-  content_topic: string
-  messageid: string
+export interface SendMessageParams extends NewBaseParams {
+  nodeid: string;
+  payload_type: string;
+  payload: string;
+  need_store: boolean;
+  cipher_suite: string;
+  content_topic: string;
+  messageid: string;
 }
 
 export interface NewCommonGetListParams extends NewBaseParams, PageParams {}
@@ -207,8 +208,12 @@ export interface SendFriendParams extends BaseParams {
   content: string;
   target_userid: string;
 }
+
 export type FollowStatus = 'following' | 'follower' | 'follow_each';
-export type UserPermissionsType = Record<string, { type: string; value: boolean }>;
+export type UserPermissionsType = Record<
+  string,
+  { type: string; value: boolean }
+>;
 
 export type ContactListItemType = {
   avatar_url: string;
@@ -221,22 +226,33 @@ export type ContactListItemType = {
 };
 
 export interface FollowOperationParams {
-  address: string;
-  targetUserid: string;
+  targetId: string;
   action: 'follow' | 'cancel';
-  didType: WalletType;
+  signature: string;
+  didPubKey?: string;
+  walletType?: WalletType;
+  signContent: string;
+  signTimestamp: number;
 }
 
-export type ConnectToWeb3MQParams =  {
+export type GetFollowSignContentParams = {
+  walletAddress: string;
+  targetUserid: string;
+  action: 'follow' | 'cancel';
+  walletType: WalletType;
+};
+
+export type ConnectToWeb3MQParams = {
   mainPrivateKey?: string; // in snap state || register
   mainPublicKey?: string; // in snap state  || register
   walletType?: WalletType;
   walletAddress: string;
   password: string;
   pubkeyExpiredTimestamp?: number;
-  userid?: string
-}
-export type RegisterToWeb3MQParams =  {
+  userid?: string;
+};
+
+export type RegisterToWeb3MQParams = {
   mainPrivateKey: string; // in snap state || register
   mainPublicKey: string; // in snap state  || register
   walletType?: WalletType;
@@ -249,4 +265,4 @@ export type RegisterToWeb3MQParams =  {
   nickname?: string;
   avatarUrl?: string;
   userid: string;
-}
+};
