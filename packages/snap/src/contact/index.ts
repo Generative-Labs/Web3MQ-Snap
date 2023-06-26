@@ -40,7 +40,7 @@ export class Contact {
       timestamp,
       ...option,
     });
-    return data
+    return data;
   }
 
   static async getFollowerList(
@@ -142,22 +142,5 @@ export class Contact {
       target_userid,
     });
     return data as any;
-  }
-
-  static async getMyFriendRequestList(option: PageParams) {
-    const { userid, privateKey } = await getWeb3MQTempKeys();
-    const timestamp = Date.now();
-    const signContent = userid + timestamp;
-    const web3mq_signature = await getDataSignature(privateKey, signContent);
-
-    const {
-      data: { result = [] },
-    } = await getMyFriendListRequest({
-      web3mq_signature,
-      userid,
-      timestamp,
-      ...option,
-    });
-    return result;
   }
 }

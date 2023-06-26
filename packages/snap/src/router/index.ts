@@ -18,7 +18,6 @@ import {
   getContactList,
   getFollowerList,
   getFollowingList, getFollowSignContent,
-  getMyFriendRequestList,
   requestFollow,
 } from '../controller/contacts';
 
@@ -41,7 +40,6 @@ router
   .use('getMainKeypairBySignature', getMainKeypairBySignature)
   .use('registerToWeb3MQNetwork', registerToWeb3MQNetwork)
   .use('getRegisterSignContent', getRegisterSignContent)
-  .use('getMyFriendRequestList', getMyFriendRequestList)
   .use('exportWeb3MQKeys', exportWeb3MQKeys)
   .use('connectWeb3MQNetwork_v1', connectWeb3MQNetwork_v1)
   .use('getFollowSignContent', getFollowSignContent)

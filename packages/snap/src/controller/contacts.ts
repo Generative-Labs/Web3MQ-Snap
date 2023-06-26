@@ -59,10 +59,3 @@ export const followOperation = async (payload: FollowOperationParams) => {
     throw new Error(e);
   }
 };
-export const getMyFriendRequestList = async (payload: PageParams) => {
-  try {
-    return await Contact.getMyFriendRequestList(payload);
-  } catch (e) {
-    throw new Error(e);
-  }
-};
