@@ -293,5 +293,5 @@ export const GenerateMessageID = async (
     .hex();
 };
 
-// export const DefaultEnv = 'test';
-export const DefaultEnv = 'dev'
+export const DefaultEnv = 'test';
+// export const DefaultEnv = 'dev'
