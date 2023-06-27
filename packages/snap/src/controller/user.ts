@@ -1,7 +1,7 @@
 import { Client } from '../client';
 import {
   DefaultEnv,
-  getStatesByKey, getWeb3MQTempKeys,
+  getStatesByKey, getWeb3MQTempKeys, saveStates,
 } from '../utils';
 import { Message } from '../message';
 import {
@@ -95,6 +95,25 @@ export async function exportWeb3MQKeys() {
     pubkeyExpiredTimestamp,
   };
   return await getWeb3MQTempKeys()
+}
+
+export async function disconnect() {
+  await saveStates('PRIVATE_KEY', '')
+  await saveStates('PUBLIC_KEY', '')
+  await saveStates('userid', '')
+  await saveStates('PUBKEY_EXPIRED_TIMESTAMP', '')
+}
+
+
+export async function clearWeb3MQKeys() {
+  await saveStates('PRIVATE_KEY', '')
+  await saveStates('PUBLIC_KEY', '')
+  await saveStates('userid', '')
+  await saveStates('WALLET_ADDRESS', '')
+  await saveStates('MAIN_PRIVATE_KEY', '')
+  await saveStates('MAIN_PUBLIC_KEY', '')
+  await saveStates('DID_KEY', '')
+  await saveStates('PUBKEY_EXPIRED_TIMESTAMP', '')
 }
 
 export async function registerToWeb3MQNetwork(payload: RegisterToWeb3MQParams) {

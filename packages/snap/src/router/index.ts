@@ -1,8 +1,8 @@
 import { sendNotifyMessage } from '../controller/notifyMessage';
 import {
-  checkUserExist,
+  checkUserExist, clearWeb3MQKeys,
   connectToWeb3MQ,
-  connectWeb3MQNetwork_v1,
+  connectWeb3MQNetwork_v1, disconnect,
   exportWeb3MQKeys,
   getMainKeypairBySignature,
   getMainKeySignContent,
@@ -41,6 +41,8 @@ router
   .use('registerToWeb3MQNetwork', registerToWeb3MQNetwork)
   .use('getRegisterSignContent', getRegisterSignContent)
   .use('exportWeb3MQKeys', exportWeb3MQKeys)
+  .use('disconnect', disconnect)
+  .use('clearWeb3MQKeys', clearWeb3MQKeys)
   .use('connectWeb3MQNetwork_v1', connectWeb3MQNetwork_v1)
   .use('getFollowSignContent', getFollowSignContent)
   .use('getMessageList', getMessageList);

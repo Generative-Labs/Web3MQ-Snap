@@ -1,6 +1,6 @@
 {
   "name": "@web3mq/snap",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "The 'Hello, world!' of MetaMask Snaps, now written in TypeScript.",
   "repository": {
     "type": "git",
