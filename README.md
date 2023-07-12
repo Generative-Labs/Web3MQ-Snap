@@ -1,78 +1,370 @@
-# @metamask/template-snap-monorepo
+# @web3mq/snap
 
-This repository demonstrates how to develop a snap with TypeScript. For detailed instructions, see [the MetaMask documentation](https://docs.metamask.io/guide/snaps.html#serving-a-snap-to-your-local-environment).
+web3mq snap provides more possibilities for building web3 social dapps
 
-MetaMask Snaps is a system that allows anyone to safely expand the capabilities of MetaMask. A _snap_ is a program that we run in an isolated environment that can customize the wallet experience.
+You can familiarize yourself with mq-web3 snap based on the following example
 
-## Snaps is pre-release software
+Before starting, you need to install
+the [flask plugin](https://chrome.google.com/webstore/detail/metamask-flask-developmen/ljfoeinjpaedjfecbmggjgodbgkmjkjk?hl=zh-CN)
+on your browser. After the plugin is installed, execute the following code in your dapp to install the mq-web3 snap
 
-To interact with (your) Snaps, you will need to install [MetaMask Flask](https://metamask.io/flask/), a canary distribution for developers that provides access to upcoming features.
+Examples: https://web3mq-snap-demo.pages.dev/
 
-## Getting Started
+## features:
 
-Clone the template-snap repository [using this template](https://github.com/MetaMask/template-snap-monorepo/generate) and setup the development environment:
+- register / connect to web3mq network
+- Create a group chat room
+- Get the channels you created or joined
+- Search user in web3mq
+- Search for users in web3mq by eth address
+- Send message to user or group channel
+- Get the chat history of a chat room
+- follow / unfollow web3mq user
+- View your followers and followers
 
-```shell
-yarn install && yarn start
+## Methods
+
+| name                      | type     | Parameters Description                                                                                                             | response                                                                                           |
+| ------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| checkUserExist            | function | [CheckUserExistParams](#CheckUserExistParams)                                                                                      | Promise:[CheckUserExistResponse](#CheckUserExistResponse)                                          |
+| getMainKeySignContent     | function | [GetMainKeySignContentParams](#GetMainKeySignContentParams)                                                                        | Promise:[GetMainKeySignContentResponse](#GetMainKeySignContentResponse)                            |
+| getMainKeypairBySignature | function | [GetMainKeypairParams](#GetMainKeypairParams)                                                                                      | Promise:[MainKeypairType](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/types/#mainkeypairtype)   |
+| getRegisterSignContent    | function | [GetRegisterSignContentParams](#GetRegisterSignContentParams)                                                                      | Promise:[GetRegisterSignContentResponse](#GetRegisterSignContentResponse)                          |
+| registerToWeb3MQNetwork   | function | [RegisterBySignParams](#RegisterBySignParams)                                                                                      | Promise:void                                                                                       |
+| connectToWeb3MQ           | function | [ConnectToWeb3MQParams](#ConnectToWeb3MQParams)                                                                                    | Promise:void                                                                                       |
+| creatRoom                 | function | [CreateRoomParams](#CreateRoomParams)                                                                                              | Promise:true                                                                                       |
+| getChannelList            | function | [GetChannelListParams](#GetChannelListParams)                                                                                      | Promise:[channelitemtype](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/types/#channelitemtype)[] |
+| sendNotifyMessage         | function | [SendNotifyMessageParams](#SendNotifyMessageParams)                                                                                | Promise:void                                                                                       |
+| sendMessage               | function | [SendMessageParams](#SendMessageParams)                                                                                            | Promise:true                                                                                       |
+| searchUser                | function | [SearchUserParams](#SearchUserParams)                                                                                              | Promise:[SearchUserResponse](#SearchUserResponse)                                                  |
+| getContactList            | function | [PageParams](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/types/#pageparams)                                                     | Promise:[GetContactListResponse](#GetContactListResponse)                                          |
+| getFollowerList           | function | [PageParams](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/types/#pageparams)                                                     | Promise:[GetContactListResponse](#GetContactListResponse)                                          |
+| getFollowingList          | function | [PageParams](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/types/#pageparams)                                                     | Promise:[GetContactListResponse](#GetContactListResponse)                                          |
+| requestFollow             | function | [RequestFollowParams](#RequestFollowParams)                                                                                        | Promise:bool                                                                                       |
+| followOperation           | function | [PublishNotificationToFollowersParams](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/types/#publishnotificationtofollowersparams) | Promise:bool                                                                                       |
+| disconnect                | function | -                                                                                                                                  | -                                                                                                  |
+| exportWeb3MQKeys          | function | -                                                                                                                                  | Promise:[ExportWeb3MQKeysResponse](#ExportWeb3MQKeysResponse)                                      |
+| clearWeb3MQKeys           | function | -                                                                                                                                  | -                                                                                                  |
+| getFollowSignContent      | function | [GetFollowSignContentParams](#GetFollowSignContentParams)                                                                          | Promise:[GetFollowSignContentResponse](#GetFollowSignContentResponse)                              |
+| getMessageList            | function | [GetMessageListParams](#GetMessageListParams)                                                                                      | Promise:[GetMessageListResponse](#GetMessageListResponse)                                          |
+
+## type list
+
+### CheckUserExistParams
+
+| name    | type   | format          | desc           | required | eg         |
+| ------- | ------ | --------------- | -------------- | -------- | ---------- |
+| address | string | 0x0000000000001 | wallet address | true     | "0x000000" |
+
+### CheckUserExistResponse
+
+```json
+[
+  {
+    "userid": "user:daeb1886610c47430790cf1f20cba93936d418adba5857e678210c40",
+    "userExist": true
+  }
+]
 ```
 
-## Cloning
+### GetMainKeySignContentParams
 
-This repository contains GitHub Actions that you may find useful, see `.github/workflows` and [Releasing & Publishing](https://github.com/MetaMask/template-snap-monorepo/edit/main/README.md#releasing--publishing) below for more information.
+| name     | type   | format          | desc           | required | eg         |
+| -------- | ------ | --------------- | -------------- | -------- | ---------- |
+| address  | string | 0x0000000000001 | wallet address | true     | "0x000000" |
+| password | string | -               | Login password | true     | -          |
 
-If you clone or create this repository outside the MetaMask GitHub organization, you probably want to run `./scripts/cleanup.sh` to remove some files that will not work properly outside the MetaMask GitHub organization.
+### GetMainKeySignContentResponse
 
-Note that the `action-publish-release.yml` workflow contains a step that publishes the frontend of this snap (contained in the `public/` directory) to GitHub pages. If you do not want to publish the frontend to GitHub pages, simply remove the step named "Publish to GitHub Pages" in that workflow.
+<!-- | name        | type   | format | desc         | eg  | -->
+<!-- | ----------- | ------ | ------ | ------------ | --- | -->
+<!-- | signContent | string | -      | sign content | -   | -->
 
-If you don't wish to use any of the existing GitHub actions in this repository, simply delete the `.github/workflows` directory.
+```ts
+const response = {
+  signContent: `
+  Signing this message will allow this app to decrypt messages in the Web3MQ protocol for the following address: 0x6b6ff43d0568eb905b5eefb09082899800b1fbd4. This won’t cost you anything.
 
-## Contributing
+  If your Web3MQ wallet-associated password and this signature is exposed to any malicious app, this would result in exposure of Web3MQ account access and encryption keys, and the attacker would be able to read your messages.,
 
-### Testing and Linting
+  In the event of such an incident, don’t panic. You can call Web3MQ’s key revoke API and service to revoke access to the exposed encryption key and generate a new one!
 
-Run `yarn test` to run the tests once.
+  Nonce: NDI3ODI4YTBmNjJmYjBkNDQ1MjUzMTRmODJjMzRhNzk0MDFkMjVhODE0OWFhOWYyYzM0YTdjYjA=`,
+};
+```
 
-Run `yarn lint` to run the linter, or run `yarn lint:fix` to run the linter and fix any automatically fixable issues.
+### GetMainKeypairParams
 
-### Releasing & Publishing
+| name      | type   | format | desc                  | required | eg  |
+| --------- | ------ | ------ | --------------------- | -------- | --- |
+| signature | string | -      | eth personal_sign res | true     | -   |
+| password  | string | -      | Login password        | true     | -   |
 
-The project follows the same release process as the other libraries in the MetaMask organization. The GitHub Actions [`action-create-release-pr`](https://github.com/MetaMask/action-create-release-pr) and [`action-publish-release`](https://github.com/MetaMask/action-publish-release) are used to automate the release process; see those repositories for more information about how they work.
+### GetMainKeysResponse
 
-1. Choose a release version.
+```json
+{
+  "publicKey": "f3e9b047fd2171ac1df0e328b2b06100a788d7195397d63096893ff4daa50de1",
+  "secretKey": "IXVCVAw9uvK8Ulm6us9OplvjRin3N+o+Q0Hpv9yOGOtLFW9+nHp9TRyA1B9jvRWtLSB1ICvG5G9HASvqQ7RF/FIT1KnpgkCX4QlXHiyEn/4="
+}
+```
 
-- The release version should be chosen according to SemVer. Analyze the changes to see whether they include any breaking changes, new features, or deprecations, then choose the appropriate SemVer version. See [the SemVer specification](https://semver.org/) for more information.
+### GetRegisterSignContentParams
 
-2. If this release is backporting changes onto a previous release, then ensure there is a major version branch for that version (e.g. `1.x` for a `v1` backport release).
+| name           | type   | format                                                                                  | desc                    | required | eg                     |
+| -------------- | ------ | --------------------------------------------------------------------------------------- | ----------------------- | -------- | ---------------------- |
+| walletType     | 'eth'  | 'eth'                                                                                   | "eth"                   | true     |
+| walletAddress  | string | 0x0000000000001                                                                         | wallet address          | true     | "0x000000"             |
+| mainPublicKey  | string | [PublicKey](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/standards/#master-publickey) | master public key       | true     | -                      |
+| signContentURI | string | -                                                                                       | url of the current page | false    | window.location.origin |
+| userid         | string | [userid](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/standards/#userid)              | useid of user           | true     | "user:xxx"             |
 
-- The major version branch should be set to the most recent release with that major version. For example, when backporting a `v1.0.2` release, you'd want to ensure there was a `1.x` branch that was set to the `v1.0.1` tag.
+### GetRegisterSignContentResponse
 
-3. Trigger the [`workflow_dispatch`](https://docs.github.com/en/actions/reference/events-that-trigger-workflows#workflow_dispatch) event [manually](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow) for the `Create Release Pull Request` action to create the release PR.
+<!-- | name         | type   | format | desc                                      | eg  |
+| ------------ | ------ | ------ | ----------------------------------------- | --- |
+| signContent  | string | -      | sign content                              | -   |
+| registerTime | number | -      | Timestamp of when the signcontent was got | -   | -->
 
-- For a backport release, the base branch should be the major version branch that you ensured existed in step 2. For a normal release, the base branch should be the main branch for that repository (which should be the default value).
-- This should trigger the [`action-create-release-pr`](https://github.com/MetaMask/action-create-release-pr) workflow to create the release PR.
+```json
+{
+  "signContent": "Web3MQ wants you to sign in with your Ethereum account:\n0x6b6ff43d0568eb905b5eefb09082899800b1fbd4\nFor Web3MQ register\nURI: Web3MQ - snaps\nVersion: 1\n\nNonce: 51560ee1bc7f1f6eaa255610306d7be413dc9a6dc35b865a98b24d3f\nIssued At: 12/07/2023 15:59",
+  "registerTime": 1689148740758
+}
+```
 
-4. Update the changelog to move each change entry into the appropriate change category ([See here](https://keepachangelog.com/en/1.0.0/#types) for the full list of change categories, and the correct ordering), and edit them to be more easily understood by users of the package.
+### RegisterBySignParams
 
-- Generally any changes that don't affect consumers of the package (e.g. lockfile changes or development environment changes) are omitted. Exceptions may be made for changes that might be of interest despite not having an effect upon the published package (e.g. major test improvements, security improvements, improved documentation, etc.).
-- Try to explain each change in terms that users of the package would understand (e.g. avoid referencing internal variables/concepts).
-- Consolidate related changes into one change entry if it makes it easier to explain.
-- Run `yarn auto-changelog validate --rc` to check that the changelog is correctly formatted.
+| name                | type   | format                                                                                    | desc                                      | required   | eg         |
+| ------------------- | ------ | ----------------------------------------------------------------------------------------- | ----------------------------------------- | ---------- | ---------- |
+| avatarUrl           | string | -                                                                                         | avatar resource                           | false      | -          |
+| walletAddress       | string | 0x0000000000001                                                                           | wallet address                            | "0x000000" | "0x000000" |
+| mainPrivateKey      | string | [PrivateKey](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/standards/#master-privatekey) | master private key                        | true       | -          |
+| mainPublicKey       | string | [PublicKey](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/standards/#master-publickey)   | master public key                         | true       | -          |
+| nickname            | string | -                                                                                         | nickname                                  | false      | -          |
+| signature           | string | [signature](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/standards/#wallet-sign)        | content of sign                           | true       | -          |
+| userid              | string | [userid](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/standards/#userid)                | useid of user                             | "user:xxx" | "user:xxx" |
+| registerSignContent | string | [userid](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/standards/#userid)                | useid of user                             | true       | "user:xxx" |
+| registerTime        | number | -                                                                                         | Timestamp of when the signcontent was got | true       | -          |
+| password            | string | -                                                                                         | Login password                            | true       | -          |
 
-5. Review and QA the release.
+### ConnectToWeb3MQParams
 
-- If changes are made to the base branch, the release branch will need to be updated with these changes and review/QA will need to restart again. As such, it's probably best to avoid merging other PRs into the base branch while review is underway.
+| name                   | type   | format                                                                                    | desc                                          | required   | eg         |
+| ---------------------- | ------ | ----------------------------------------------------------------------------------------- | --------------------------------------------- | ---------- | ---------- |
+| walletAddress          | string | 0x0000000000001                                                                           | wallet address                                | "0x000000" | "0x000000" |
+| mainPrivateKey         | string | [PrivateKey](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/standards/#master-privatekey) | master private key                            | -          | -          |
+| mainPublicKey          | string | [PublicKey](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/standards/#master-publickey)   | master public key                             | -          | -          |
+| password               | string | -                                                                                         | Login password                                | -          | -          |
+| pubkeyExpiredTimestamp | number | -                                                                                         | the expiration time of the temporary key pair | -          | -          |
+| userid                 | string | [userid](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/standards/#userid)                | useid of user                                 | "user:xxx" | "user:xxx" |
 
-6. Squash & Merge the release.
+### CreateRoomParams
 
-- This should trigger the [`action-publish-release`](https://github.com/MetaMask/action-publish-release) workflow to tag the final release commit and publish the release on GitHub.
+| name       | type   | format | desc       | required | eg          |
+| ---------- | ------ | ------ | ---------- | -------- | ----------- |
+| group_name | string | -      | group name | false    | test room 1 |
 
-7. Publish the release on npm.
+### CreateRoomResponse
 
-- Be very careful to use a clean local environment to publish the release, and follow exactly the same steps used during CI.
-- Use `npm publish --dry-run` to examine the release contents to ensure the correct files are included. Compare to previous releases if necessary (e.g. using `https://unpkg.com/browse/[package name]@[package version]/`).
-- Once you are confident the release contents are correct, publish the release using `npm publish`.
+```json
+{
+  "avatar_base64": "",
+  "avatar_url": "",
+  "group_name": "group 1",
+  "groupid": "group:dc6dfb6cb100c52499319e79de0429ddf90fb4db"
+}
+```
 
-## Notes
+### GetChannelListParams
 
-- Babel is used for transpiling TypeScript to JavaScript, so when building with the CLI,
-  `transpilationMode` must be set to `localOnly` (default) or `localAndDeps`.
+| name    | type       | format                                                                         | desc           | required | eg                                 |
+| ------- | ---------- | ------------------------------------------------------------------------------ | -------------- | -------- | ---------------------------------- |
+| options | PageParams | [PageParams](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/types/#pageparams) | wallet address | true     | { options: { page: 1, size: 10 } } |
+
+### GetChannelListResponse
+
+```json
+[
+  {
+    "topic": "group:dc6dfb6cb100c52499319e79de0429ddf90fb4db",
+    "topic_type": "group",
+    "chatid": "group:dc6dfb6cb100c52499319e79de0429ddf90fb4db",
+    "chat_type": "group",
+    "chat_name": "group 1",
+    "avatar_url": "",
+    "avatar_base64": ""
+  }
+]
+```
+
+### SearchUserParams
+
+| name    | type   | format          | desc           | required | eg         |
+| ------- | ------ | --------------- | -------------- | -------- | ---------- |
+| address | string | 0x0000000000001 | wallet address | true     | "0x000000" |
+
+### SearchUserResponse
+
+```json
+[
+  {
+    "avatar_url": "",
+    "nickname": "",
+    "userid": "user:daeb1886610c47430790cf1f20cba93936d418adba5857e678210c40",
+    "wallet_address": "0x7236b0f4f1409afdc7c9fc446943a7b84b6513a1",
+    "wallet_type": "eth"
+  }
+]
+```
+
+### GetContactListResponse
+
+> GetContactList | GetFollowerList | GetFollowingList Response
+
+```json
+{
+  "total_count": 5,
+  "user_list": [
+    {
+      "avatar_url": "",
+      "follow_status": "follow_each",
+      "nickname": "wei)2",
+      "permissions": {},
+      "userid": "user:83f78ac24920a66c4770b1c207c7e12f8ebe6e14adebbcfdab7aaa86",
+      "wallet_address": "0x9b6a5a1dd55ea481f76b782862e7df2977dffe6c",
+      "wallet_type": "eth"
+    },
+    {
+      "avatar_url": "",
+      "follow_status": "follow_each",
+      "nickname": "",
+      "permissions": {},
+      "userid": "user:a4ceca2ceaf9f939ad41fcc0867b6fc1f03127ffc665055d0d959707",
+      "wallet_address": "0xa126f99e0defc3bfa963064314c4b1d54c872dcc",
+      "wallet_type": "eth"
+    },
+    {
+      "avatar_url": "",
+      "follow_status": "following",
+      "nickname": "",
+      "permissions": {},
+      "userid": "user:daeb1886610c47430790cf1f20cba93936d418adba5857e678210c40",
+      "wallet_address": "0x7236b0f4f1409afdc7c9fc446943a7b84b6513a1",
+      "wallet_type": "eth"
+    },
+    {
+      "avatar_url": "",
+      "follow_status": "follow_each",
+      "nickname": "",
+      "permissions": {},
+      "userid": "user:dc3c88cad1ce9534264a75073cfa5c3cce4ee39c088070f00be09129",
+      "wallet_address": "0xb627ef9f7521c562b49f19cdfa4b88d12607c33a",
+      "wallet_type": "eth"
+    },
+    {
+      "avatar_url": "",
+      "follow_status": "follow_each",
+      "nickname": "",
+      "permissions": {},
+      "userid": "user:05c1eddf975930c9454cfb850955c3cd4491c900a24e2de47580084f",
+      "wallet_address": "0x37c7c30b6982c754678e65bd076403fb859b842d",
+      "wallet_type": "eth"
+    }
+  ]
+}
+```
+
+### ExportWeb3MQKeysResponse
+
+```json
+{
+  "privateKey": "535d85b58b38cdabbd50c5c2734c4639ecfe5d0964f1a17231d8a648071aab55",
+  "publicKey": "4745fe265d7c36c1e039132dc39c282a8b796777d80413e480b7d9c1bfb67c12",
+  "userid": "user:daeb1886610c47430790cf1f20cba93936d418adba5857e678210c40",
+  "walletAddress": "0x7236b0f4f1409afdc7c9fc446943a7b84b6513a1",
+  "mainPrivateKey": "dCtEVQxkvvXoUVe5us4SoQ/lEn2rMexqQkznuNuOErxIEz56mHt1SBjThklhvBGsenN5c3ibsjMSCiHtE75Or/HPHB7J7ugrNAcW/C+V374=",
+  "mainPublicKey": "e587ab649db08c55ee348a7dbe568661c6790523896a4af56ca9aa7fab10514e",
+  "didKey": "eth:0x7236b0f4f1409afdc7c9fc446943a7b84b6513a1",
+  "pubkeyExpiredTimestamp": "0"
+}
+```
+
+### RequestFollowParams
+
+| name     | type   | format                           | desc                  | required | eg    |
+| -------- | ------ | -------------------------------- | --------------------- | -------- | ----- |
+| targetId | string | topic \| userid \| walletaddress | group topic or userid | true     | -     |
+| content  | string | -                                | say hello             | false    | hello |
+
+### FollowOperationParams
+
+| name          | type                 | format                                                                             | desc                                      | required | eg     |
+| ------------- | -------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------- | -------- | ------ |
+| targetId      | string               | topic \| userid \| walletaddress                                                   | group topic or userid                     | true     | -      |
+| content       | string               | -                                                                                  | say hello                                 | false    | hello  |
+| action        | 'follow' \| 'cancel' | -                                                                                  | follow action type                        | true     | follow |
+| signature     | string               | [signature](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/standards/#wallet-sign) | sign res                                  | true     | -      |
+| signContent   | string               | -                                                                                  | content of sign                           | true     | -      |
+| signTimestamp | number               | -                                                                                  | Timestamp of when the signcontent was got | true     | -      |
+
+### GetMessageListParams
+
+| name    | type       | format                                                                         | desc                  | required | eg                                 |
+| ------- | ---------- | ------------------------------------------------------------------------------ | --------------------- | -------- | ---------------------------------- |
+| options | PageParams | [PageParams](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/types/#pageparams) | wallet address        | true     | { options: { page: 1, size: 10 } } |
+| topic   | PageParams | -                                                                              | group topic or userid | true     | user:XXX \| group:xxx              |
+
+### GetMessageListResponse
+
+```json
+[
+  {
+    "_id": 1,
+    "id": 1,
+    "indexId": 1,
+    "content": "Message from snap ",
+    "senderId": "user:daeb1886610c47430790cf1f20cba93936d418adba5857e678210c40",
+    "username": "",
+    "avatar": "assets/imgs/doe.png",
+    "date": "2023-6-30",
+    "timestamp": "2:22",
+    "system": false,
+    "saved": false,
+    "distributed": true,
+    "seen": true,
+    "failure": false
+  }
+]
+```
+
+### GetFollowSignContentParams
+
+| name          | type                 | format                                                                     | desc                 | required | eg         |
+| ------------- | -------------------- | -------------------------------------------------------------------------- | -------------------- | -------- | ---------- |
+| walletType    | 'eth'                | 'eth'                                                                      | "eth"                | true     |
+| walletAddress | string               | 0x0000000000001                                                            | wallet address       | true     | "0x000000" |
+| action        | 'follow' \| 'cancel' | -                                                                          | follow action type   | true     | follow     |
+| targetUserid  | string               | [userid](https://docs.web3mq.com/docs/Web3MQ-SDK/JS-SDK/standards/#userid) | useid of target user | true     | "user:xxx" |
+
+### GetFollowSignContentResponse
+
+```json
+{
+  "signContent": "\n    Web3MQ wants you to sign in with your eth account:\n    0x7236b0f4f1409afdc7c9fc446943a7b84b6513a1\n\n    For follow signature\n\n    Nonce: 95873384cc38d9c5750286143f5123b94c5b4ce549162450ad9e08a2\n    Issued At: 2023/07/12 16:25",
+  "signTimestamp": 1689150327546
+}
+```
+
+### SendNotifyMessageParams
+
+| name    | type   | format | desc                 | required | eg  |
+| ------- | ------ | ------ | -------------------- | -------- | --- |
+| message | string | -      | notification message | true     | -   |
+
+### SendMessageParams
+
+| name    | type   | format                           | desc                  | required | eg  |
+| ------- | ------ | -------------------------------- | --------------------- | -------- | --- |
+| message | string | -                                | message               | true     | -   |
+| topic   | string | topic \| userid \| walletaddress | group topic or userid | true     | -   |

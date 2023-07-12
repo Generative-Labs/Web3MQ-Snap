@@ -1,8 +1,7 @@
 import { Register } from '../register';
-import { Request } from '../core/request';
 import { EnvTypes } from '../types';
 
-import { getFastestUrl, getStatesByKey, saveStates } from '../utils';
+import { getFastestUrl, saveStates } from '../utils';
 
 export class Client {
   static register: Register;
