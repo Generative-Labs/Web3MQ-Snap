@@ -19,9 +19,7 @@
   },
   "initialPermissions": {
     "snap_notify": {},
-    "snap_dialog": {},
     "snap_manageState": {},
-    "endowment:long-running": {},
     "endowment:ethereum-provider": {},
     "endowment:network-access": {},
     "endowment:rpc": {
