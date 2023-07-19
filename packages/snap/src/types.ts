@@ -255,7 +255,6 @@ export type ConnectToWeb3MQParams = {
   pubkeyExpiredTimestamp?: number;
   userid?: string;
 };
-
 export type RegisterToWeb3MQParams = {
   mainPrivateKey: string; // in snap state || register
   mainPublicKey: string; // in snap state  || register
@@ -270,3 +269,19 @@ export type RegisterToWeb3MQParams = {
   avatarUrl?: string;
   userid: string;
 };
+
+export interface PullNewMessagesParams extends NewBaseParams {
+  sync_timestamp: number;
+}
+
+export type PullNewMessagesResponse = {
+  msg: string;
+  code: number;
+  data: PullNewMessageData;
+};
+
+export type PullNewMessageData = {
+  latest_timestamp: number;
+  messages: Record<string, number>;
+  notifications: any
+}

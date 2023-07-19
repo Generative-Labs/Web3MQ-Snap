@@ -13,3 +13,5 @@ export const domainUrlList = {
     'https://testnet-ap-singapore-2.web3mq.com',
   ],
 };
+export const DefaultEnv = 'test';
+// export const DefaultEnv = 'dev'

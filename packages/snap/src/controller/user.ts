@@ -1,14 +1,15 @@
 import { Client } from '../client';
 import {
-  DefaultEnv,
   getStatesByKey, getWeb3MQTempKeys, saveStates,
 } from '../utils';
 import { Message } from '../message';
 import {
-  ConnectToWeb3MQParams, GetRegisterSignContentParams,
+  ConnectToWeb3MQParams,
+  GetRegisterSignContentParams,
   RegisterToWeb3MQParams,
   WalletType,
 } from '../types';
+import { DefaultEnv } from '../core/config';
 
 export async function checkUserExist(payload: { address: string }) {
   try {
@@ -133,17 +134,6 @@ export async function connectToWeb3MQ(payload: ConnectToWeb3MQParams) {
       await Client.init({ env: DefaultEnv });
     }
     await Client.register.connectWeb3MQNetwork(payload);
-  } catch (e: any) {
-    throw new Error(e);
-  }
-}
-
-export async function connectWeb3MQNetwork_v1(payload: ConnectToWeb3MQParams) {
-  try {
-    if (!Client.register) {
-      await Client.init({ env: DefaultEnv });
-    }
-    await Client.register.connectWeb3MQNetwork_v1(payload);
   } catch (e: any) {
     throw new Error(e);
   }
