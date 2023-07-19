@@ -13,7 +13,10 @@ import {
   RegisterApiResponse,
   FollowOperationApiParams,
   NewCommonGetListParams,
-  SendFriendParams, SendMessageParams,
+  SendFriendParams,
+  SendMessageParams,
+  PullNewMessagesParams,
+  PullNewMessagesResponse,
 } from '../types';
 
 export const createRoomRequest = async (payload: CreateRoomApiParams) => {
@@ -119,4 +122,9 @@ export const getMyFriendListRequest = async (payload: CommonGetListParams) => {
 };
 export const sendFriendRequest = async (payload: SendFriendParams) => {
   return await Request.post('/api/contacts/add_friends/', payload);
+};
+export const pullNewMessages = async (
+  payload: PullNewMessagesParams,
+): Promise<PullNewMessagesResponse> => {
+  return await Request.post('/api/common_notification_dataset/', payload);
 };

@@ -46,7 +46,6 @@ export type GetMainKeypairParams = {
 
 export type EnvTypes = 'dev' | 'test';
 
-
 export type RegisterParams = {
   userid: string;
   did_type: string;
@@ -142,7 +141,7 @@ export type WalletSignRes = {
 
 export type GetRegisterSignContentResponse = {
   signContent: string;
-  registerTime: number
+  registerTime: number;
 };
 export type GetSignContentResponse = {
   signContent: string;
@@ -179,26 +178,28 @@ export type WalletBaseParams = {
   sign_content: string;
   timestamp: number;
 };
+
 export interface FollowOperationApiParams extends WalletBaseParams {
   address: string;
   target_userid: string;
   action: 'follow' | 'cancel';
   did_type: WalletType;
 }
+
 export type NewBaseParams = {
   userid: string;
   web3mq_user_signature: string;
   timestamp: number;
 };
 
-export interface SendMessageParams extends NewBaseParams{
-  nodeid: string
-  payload_type: string
-  payload: string
-  need_store: boolean
-  cipher_suite: string
-  content_topic: string
-  messageid: string
+export interface SendMessageParams extends NewBaseParams {
+  nodeid: string;
+  payload_type: string;
+  payload: string;
+  need_store: boolean;
+  cipher_suite: string;
+  content_topic: string;
+  messageid: string;
 }
 
 export interface NewCommonGetListParams extends NewBaseParams, PageParams {}
@@ -207,8 +208,12 @@ export interface SendFriendParams extends BaseParams {
   content: string;
   target_userid: string;
 }
+
 export type FollowStatus = 'following' | 'follower' | 'follow_each';
-export type UserPermissionsType = Record<string, { type: string; value: boolean }>;
+export type UserPermissionsType = Record<
+  string,
+  { type: string; value: boolean }
+>;
 
 export type ContactListItemType = {
   avatar_url: string;
@@ -227,16 +232,16 @@ export interface FollowOperationParams {
   didType: WalletType;
 }
 
-export type ConnectToWeb3MQParams =  {
+export type ConnectToWeb3MQParams = {
   mainPrivateKey?: string; // in snap state || register
   mainPublicKey?: string; // in snap state  || register
   walletType?: WalletType;
   walletAddress: string;
   password: string;
   pubkeyExpiredTimestamp?: number;
-  userid?: string
-}
-export type RegisterToWeb3MQParams =  {
+  userid?: string;
+};
+export type RegisterToWeb3MQParams = {
   mainPrivateKey: string; // in snap state || register
   mainPublicKey: string; // in snap state  || register
   walletType?: WalletType;
@@ -249,4 +254,20 @@ export type RegisterToWeb3MQParams =  {
   nickname?: string;
   avatarUrl?: string;
   userid: string;
+};
+
+export interface PullNewMessagesParams extends NewBaseParams {
+  sync_timestamp: number;
+}
+
+export type PullNewMessagesResponse = {
+  msg: string;
+  code: number;
+  data: PullNewMessageData;
+};
+
+export type PullNewMessageData = {
+  latest_timestamp: number;
+  messages: Record<string, number>;
+  notifications: any
 }

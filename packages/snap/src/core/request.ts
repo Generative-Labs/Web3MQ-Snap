@@ -45,8 +45,6 @@ export const request = async (
       if (res.code !== 0) {
         throw new Error(res.msg);
       }
-      // const { data } = res;
-      // eslint-disable-next-line consistent-return
       return res;
     }
     console.log(response, 'fetch error');

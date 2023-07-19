@@ -1,6 +1,5 @@
 import { Client } from '../client';
 import {
-  DefaultEnv,
   getStatesByKey,
 } from '../utils';
 import { Message } from '../message';
@@ -9,6 +8,7 @@ import {
   RegisterToWeb3MQParams,
   WalletType,
 } from '../types';
+import { DefaultEnv } from '../core/config';
 
 export type ConnectRpcDto = {
   password: string;

@@ -218,10 +218,6 @@ export const getWeb3MQTempKeys = async () => {
   };
 };
 
-export const getLocalUrl = async () => {
-  return ((await getStatesByKey('FAST_URL')) as string) || '';
-};
-
 export function newDateFormat(time: number, format?: string) {
   const t = new Date(time);
   format = format || 'Y-m-d h:i:s';
@@ -266,5 +262,4 @@ export const GenerateMessageID = async (
     .hex();
 };
 
-export const DefaultEnv = 'test';
-// export const DefaultEnv = 'dev'
+
