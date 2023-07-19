@@ -42,7 +42,7 @@ export const fetchNewMessages = async () => {
       }
     }
     if (notifications && Object.keys(notifications).length > 0) {
-      for (const notificationKey of notifications) {
+      for (const notificationKey in notifications) {
         const num = notifications[notificationKey];
         if (notificationKey === 'system.friend_request') {
           const str = num === 1 ? 'request' : 'requests';
