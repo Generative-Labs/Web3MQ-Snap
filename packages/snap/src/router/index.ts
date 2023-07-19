@@ -1,9 +1,13 @@
 import { sendNotifyMessage } from '../controller/notifyMessage';
 import {
-  checkUserExist,
-  connectToWeb3MQ, exportWeb3MQKeys,
+  checkUserExist, clearWeb3MQKeys,
+  connectToWeb3MQ,
+  connectWeb3MQNetwork_v1, disconnect,
+  exportWeb3MQKeys,
   getMainKeypairBySignature,
-  getMainKeySignContent, getRegisterSignContent, registerToWeb3MQNetwork,
+  getMainKeySignContent,
+  getRegisterSignContent,
+  registerToWeb3MQNetwork,
   searchUser,
 } from '../controller/user';
 import { SnapRouter } from '../lib/Router';
@@ -13,8 +17,7 @@ import {
   followOperation,
   getContactList,
   getFollowerList,
-  getFollowingList,
-  getMyFriendRequestList,
+  getFollowingList, getFollowSignContent,
   requestFollow,
 } from '../controller/contacts';
 
@@ -37,8 +40,11 @@ router
   .use('getMainKeypairBySignature', getMainKeypairBySignature)
   .use('registerToWeb3MQNetwork', registerToWeb3MQNetwork)
   .use('getRegisterSignContent', getRegisterSignContent)
-  .use('getMyFriendRequestList', getMyFriendRequestList)
   .use('exportWeb3MQKeys', exportWeb3MQKeys)
+  .use('disconnect', disconnect)
+  .use('clearWeb3MQKeys', clearWeb3MQKeys)
+  .use('connectWeb3MQNetwork_v1', connectWeb3MQNetwork_v1)
+  .use('getFollowSignContent', getFollowSignContent)
   .use('getMessageList', getMessageList);
 
 export default router;

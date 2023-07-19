@@ -1,7 +1,7 @@
 {
-  "version": "0.5.0",
-  "description": "An example Snap written in TypeScript.",
-  "proposedName": "TypeScript Example Snap",
+  "version": "0.8.3",
+  "description": "Web3MQ's Snap",
+  "proposedName": "Web3MQ Snap",
   "repository": {
     "type": "git",
     "url": "https://github.com/MetaMask/template-snap-monorepo.git"
