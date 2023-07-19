@@ -1,6 +1,6 @@
 export type PageParams = {
-  page?: number;
-  size?: number;
+  page: number;
+  size: number;
 };
 
 export type AccountType = {
@@ -150,8 +150,8 @@ export type GetSignContentResponse = {
 export type GetRegisterSignContentParams = {
   userid: string;
   mainPublicKey: string;
-  didType: WalletType;
-  didValue: string;
+  walletType: WalletType;
+  walletAddress: string;
   signContentURI?: string;
 };
 
@@ -204,6 +204,10 @@ export interface SendMessageParams extends NewBaseParams {
 
 export interface NewCommonGetListParams extends NewBaseParams, PageParams {}
 
+export interface GetContactListApiParams extends NewBaseParams, PageParams {
+  follow_status?: 'following' | 'follow_each' | 'follower'
+}
+
 export interface SendFriendParams extends BaseParams {
   content: string;
   target_userid: string;
@@ -226,11 +230,21 @@ export type ContactListItemType = {
 };
 
 export interface FollowOperationParams {
-  address: string;
+  targetId: string;
+  action: 'follow' | 'cancel';
+  signature: string;
+  didPubKey?: string;
+  walletType?: WalletType;
+  signContent: string;
+  signTimestamp: number;
+}
+
+export type GetFollowSignContentParams = {
+  walletAddress: string;
   targetUserid: string;
   action: 'follow' | 'cancel';
-  didType: WalletType;
-}
+  walletType: WalletType;
+};
 
 export type ConnectToWeb3MQParams = {
   mainPrivateKey?: string; // in snap state || register

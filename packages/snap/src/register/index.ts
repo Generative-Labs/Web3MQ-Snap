@@ -273,21 +273,21 @@ Nonce: ${magicString}`;
   ): Promise<GetRegisterSignContentResponse> => {
     const {
       mainPublicKey,
-      didType,
-      didValue,
+      walletType,
+      walletAddress,
       userid,
       signContentURI = 'Web3MQ - snaps',
     } = options;
 
-    const wallet_type_name = WalletNameMap[didType];
+    const wallet_type_name = WalletNameMap[walletType];
     const pubkey_type = this.pubicKeyType;
     const timestamp = Date.now();
     const NonceContent = sha3_224(
-      userid + pubkey_type + mainPublicKey + didType + didValue + timestamp,
+      userid + pubkey_type + mainPublicKey + walletType + walletAddress + timestamp,
     );
 
     const signContent = `Web3MQ wants you to sign in with your ${wallet_type_name} account:
-${didValue}
+${walletAddress}
 For Web3MQ register
 URI: ${signContentURI}
 Version: 1
