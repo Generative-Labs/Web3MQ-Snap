@@ -73,9 +73,6 @@ const getServerList = async (arr: any[]) => {
     const domain = arr[i];
     try {
       const { data } = await Request.get(`${domain}/api/server-list/`);
-      // serverList = await (
-      //   await Request.get(`${domain}/api/server-list/`)
-      // ).data.data;
       serverList = data;
       break;
     } catch (error) {
@@ -128,18 +125,7 @@ export const renderMessagesList = async (msglist: any) => {
     let content = '';
     if (msg.cipher_suite === 'NONE') {
       content = decodeURIComponent(escape(window.atob(msg.payload)));
-    }
-    // else if (msg.cipher_suite == 'RSA_OAEP') {
-    //   if (msg.payload) {
-    //     let byteContent = Uint8Array.from(atob(msg.payload), (c) => c.charCodeAt(0));
-
-    //     let decodeBytes = await getRsaDecryptData(RsaPrivateKeyStr ?? '', byteContent);
-    //     content = new TextDecoder().decode(decodeBytes);
-    //   } else {
-    //     content = '';
-    //   }
-    // }
-    else {
+    } else {
       content = `UnKnow message type ${msg.cipher_suite}`;
     }
     const date = new Date(msg.timestamp);

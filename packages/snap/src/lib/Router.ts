@@ -30,7 +30,6 @@ export class SnapRouter {
   }
 
   private register(path: string, handler: any, middleware?: any) {
-    const router = this
     const { stack } = this
     stack.push({
       path,
