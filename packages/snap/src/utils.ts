@@ -76,7 +76,7 @@ const getServerList = async (arr: any[]) => {
       serverList = data;
       break;
     } catch (error) {
-      continue;
+
     }
   }
   return serverList;
@@ -101,7 +101,6 @@ export const getAllDomainList = async (env: EnvTypes) => {
         nodeId: headers.nodeid,
       });
     } catch (error) {
-      console.log(error);
     }
   }
   return requestQueue;
@@ -120,11 +119,11 @@ export const getFastestUrl = async (env: EnvTypes = 'test') => {
   return list.sort(handleSort('time'))[0].url;
 };
 
-export const renderMessagesList = async (msglist: any) => {
-  return msglist.map((msg: any, idx: number) => {
+export const renderMessagesList = async (msgList: any) => {
+  return msgList.map((msg: any, idx: number) => {
     let content = '';
     if (msg.cipher_suite === 'NONE') {
-      content = decodeURIComponent(escape(window.atob(msg.payload)));
+      content = window.atob(msg.payload);
     } else {
       content = `UnKnow message type ${msg.cipher_suite}`;
     }
@@ -135,7 +134,7 @@ export const renderMessagesList = async (msglist: any) => {
     const dateStr = `${date.getFullYear()}-${
       date.getMonth() + 1
     }-${date.getDate()}`;
-    const message = {
+    return {
       _id: idx + 1,
       id: idx + 1,
       indexId: idx + 1,
@@ -153,7 +152,6 @@ export const renderMessagesList = async (msglist: any) => {
       seen: true,
       failure: false,
     };
-    return message;
   });
 };
 
@@ -204,7 +202,7 @@ export const getStatesByKey = async (key: string) => {
   return null;
 };
 
-export const getWeb3MQTempKeys = async () => {
+export const getWeb3MQTempKeys = async (showError = true) => {
   const privateKey = ((await getStatesByKey('PRIVATE_KEY')) as string) || '';
   const publicKey = ((await getStatesByKey('PUBLIC_KEY')) as string) || '';
   const pubkeyExpiredTimestamp = ((await getStatesByKey('PUBKEY_EXPIRED_TIMESTAMP')) as string) || '';
@@ -216,7 +214,7 @@ export const getWeb3MQTempKeys = async () => {
   const mainPublicKey =
     ((await getStatesByKey('MAIN_PUBLIC_KEY')) as string) || '';
   const didKey = ((await getStatesByKey('DID_KEY')) as string) || '';
-  if (!privateKey && !publicKey && !userid) {
+  if (!privateKey && !publicKey && !userid && showError) {
     throw new Error('The PrivateKey and PublicKey is required!');
   }
   return {

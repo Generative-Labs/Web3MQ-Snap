@@ -41,13 +41,11 @@ export const request = async (
 
     if (response.status === 200) {
       const res = await response.json();
-      console.log(res, 'fetch resp');
       if (res.code !== 0) {
         throw new Error(res.msg);
       }
       return res;
     }
-    console.log(response, 'fetch error');
     const errorMessage = await response.text();
     return Promise.reject(new Error(errorMessage));
   });

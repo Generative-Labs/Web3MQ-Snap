@@ -1,4 +1,4 @@
-import { Request } from '../core/request';
+import {Request} from '../core/request';
 
 import {
   CreateRoomApiParams,
@@ -113,11 +113,6 @@ export const getFollowingListRequest = async (
   payload: NewCommonGetListParams,
 ) => {
   return await Request.get('/api/user_following/', {
-    params: payload,
-  });
-};
-export const getMyFriendListRequest = async (payload: CommonGetListParams) => {
-  return await Request.get('/api/contacts/add_friends/', {
     params: payload,
   });
 };

@@ -1,18 +1,7 @@
-import { PageParams, SendMessageParams } from '../types';
-import {
-  GenerateMessageID,
-  getDataSignature,
-  getWeb3MQTempKeys,
-  renderMessagesList,
-  transformAddress,
-} from '../utils';
-import {
-  getMessageListRequest,
-  getNodeInfoRequest,
-  searchUsersRequest,
-  sendMessageRequest,
-} from '../api';
-import { Uint8ArrayToBase64String } from '../encryption';
+import {PageParams, SendMessageParams} from '../types';
+import {GenerateMessageID, getDataSignature, getWeb3MQTempKeys, renderMessagesList, transformAddress,} from '../utils';
+import {getMessageListRequest, getNodeInfoRequest, searchUsersRequest, sendMessageRequest,} from '../api';
+import {Uint8ArrayToBase64String} from '../encryption';
 
 export class Message {
   static async getMessageList(option: PageParams, topic: string) {
@@ -53,7 +42,6 @@ export class Message {
   }
 
   static async sendMessage(msg: string, targetTopic: string) {
-    console.log('sendMessage Called');
     const { userid, privateKey } = await getWeb3MQTempKeys();
     const topic = await transformAddress(targetTopic);
     if (!topic) {
@@ -88,8 +76,6 @@ export class Message {
       web3mq_user_signature,
     };
 
-    const res = await sendMessageRequest(msgReq);
-    console.log(res, 'res');
-    return res;
+    return await sendMessageRequest(msgReq);
   }
 }

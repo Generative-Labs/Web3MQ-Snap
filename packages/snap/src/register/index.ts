@@ -29,19 +29,15 @@ import {
   RegisterBySignParams,
   RegisterParams,
   WalletNameMap,
-  WalletSignRes,
-  WalletType,
   LoginResponse,
   GetUserInfoResponse,
   GetSignContentResponse,
   GetRegisterSignContentParams,
   MainKeypairType,
-  AccountType,
   ConnectToWeb3MQParams,
   GetRegisterSignContentResponse,
   RegisterToWeb3MQParams,
 } from '../types';
-import { getEthAccount, signWithEth } from './eth';
 
 export class Register {
   appKey: string;
@@ -85,19 +81,6 @@ export class Register {
       userid,
       userExist,
     };
-  };
-
-  getMainKeypair = async (
-    options: GetMainKeypairParams,
-  ): Promise<{ publicKey: string; secretKey: string }> => {
-    const { password, did_value, did_type } = options;
-    const { signContent } = await this.getMainKeypairSignContent(options);
-    const { sign: signature } = await this.sign(
-      signContent,
-      did_value,
-      did_type,
-    );
-    return await this.getMainKeypairBySignature(signature, password);
   };
 
   register = async (options: RegisterBySignParams) => {
@@ -182,7 +165,7 @@ export class Register {
         timestamp,
         pubkey_expired_timestamp: pubkeyExpiredTimestamp,
       };
-      const loginRes = await userLoginRequest(payload);
+      await userLoginRequest(payload);
       return {
         tempPrivateKey: PrivateKey,
         tempPublicKey: PublicKey,
@@ -191,33 +174,7 @@ export class Register {
         pubkeyExpiredTimestamp,
       };
     } catch (error: any) {
-      console.log(error, 'error');
       throw new Error(error.message);
-    }
-  };
-
-  sign = async (
-    signContent: string,
-    address: string,
-    walletType: WalletType,
-  ): Promise<WalletSignRes> => {
-    switch (walletType) {
-      default:
-        return signWithEth(signContent, address);
-    }
-  };
-
-  getAccount = async (walletType: WalletType): Promise<AccountType> => {
-    switch (walletType) {
-      default:
-        return await getEthAccount();
-    }
-  };
-
-  connectWallet = async (walletType: WalletType): Promise<AccountType> => {
-    switch (walletType) {
-      default:
-        return await getEthAccount();
     }
   };
 

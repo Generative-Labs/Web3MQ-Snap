@@ -1,7 +1,7 @@
 const stringToArrayBuffer = (str: string) => {
   let buf = new ArrayBuffer(str.length);
   let bufView = new Uint8Array(buf);
-  for (var i = 0, strLen = str.length; i < strLen; i++) {
+  for (let i = 0, strLen = str.length; i < strLen; i++) {
     bufView[i] = str.charCodeAt(i);
   }
   return buf;
@@ -34,9 +34,7 @@ const aesDecrypt = async (
 
   let key = await importSecretKey(stringToArrayBuffer(atob(keyStr)), aesName);
 
-  let result = await window.crypto.subtle.decrypt(alg, key, encoded);
-
-  return result;
+  return await window.crypto.subtle.decrypt(alg, key, encoded);
 };
 
 const aesEncrypt = async (
@@ -52,8 +50,7 @@ const aesEncrypt = async (
     length: keySize,
   };
   let key = await importSecretKey(stringToArrayBuffer(atob(keyStr)), aesName);
-  let result = await window.crypto.subtle.encrypt(alg, key, encoded);
-  return result;
+  return await window.crypto.subtle.encrypt(alg, key, encoded);
 };
 
 export const Uint8ToBase64String = (u8a: any) => {
@@ -61,18 +58,13 @@ export const Uint8ToBase64String = (u8a: any) => {
 };
 
 export const Base64StringToUint8 = (base64: string) => {
-  var binary_string = window.atob(base64);
-  var len = binary_string.length;
-  var bytes = new Uint8Array(len);
-  for (var i = 0; i < len; i++) {
+  let binary_string = window.atob(base64);
+  let len = binary_string.length;
+  let bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
     bytes[i] = binary_string.charCodeAt(i);
   }
   return bytes;
-};
-const ByteArrayToHexString = (byteArray: Uint8Array) => {
-  return Array.from(byteArray, function (byte) {
-    return ('0' + (byte & 0xff).toString(16)).slice(-2);
-  }).join('');
 };
 
 export const Uint8ArrayToBase64String = (u8a: Uint8Array) => {
@@ -103,11 +95,9 @@ export const GetAESBase64Key = async (hex_key: string) => {
   );
 
   let arrayBuffer = await crypto.subtle.exportKey('raw', aes_key_obj);
-  const base64String = btoa(
+  return btoa(
     String.fromCharCode(...new Uint8Array(arrayBuffer)),
   );
-
-  return base64String;
 };
 
 

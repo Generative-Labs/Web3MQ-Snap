@@ -2,7 +2,6 @@ import {
   getDataSignature,
   getStatesByKey,
   getWeb3MQTempKeys,
-  newDateFormat,
   saveStates,
 } from '../utils';
 import { pullNewMessages } from '../api';
@@ -13,7 +12,6 @@ export const fetchNewMessages = async () => {
   const timestamp = Date.now();
   const syncTime =
     ((await getStatesByKey('pull_sync_timestamp')) as number) || Date.now();
-  console.log(newDateFormat(syncTime, 'Y/m/d h:i'), 'sync_time');
   const signContent = userid + syncTime + timestamp;
   const web3mq_user_signature = await getDataSignature(privateKey, signContent);
   try {
@@ -57,13 +55,11 @@ export const fetchNewMessages = async () => {
       }
     }
     if (notifyMessage) {
-      console.log(notifyMessage);
       await sendNotifyMessage({
         message: notifyMessage,
       });
     }
   } catch (e) {
-    console.log(e);
     await saveStates('pull_sync_timestamp', syncTime);
   }
 };

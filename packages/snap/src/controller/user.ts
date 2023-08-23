@@ -74,28 +74,7 @@ export async function getRegisterSignContent(payload: GetRegisterSignContentPara
 }
 
 export async function exportWeb3MQKeys() {
-  const privateKey = ((await getStatesByKey('PRIVATE_KEY')) as string) || '';
-  const publicKey = ((await getStatesByKey('PUBLIC_KEY')) as string) || '';
-  const pubkeyExpiredTimestamp = ((await getStatesByKey('PUBKEY_EXPIRED_TIMESTAMP')) as string) || '';
-  const userid = ((await getStatesByKey('userid')) as string) || '';
-  const walletAddress =
-    ((await getStatesByKey('WALLET_ADDRESS')) as string) || '';
-  const mainPrivateKey =
-    ((await getStatesByKey('MAIN_PRIVATE_KEY')) as string) || '';
-  const mainPublicKey =
-    ((await getStatesByKey('MAIN_PUBLIC_KEY')) as string) || '';
-  const didKey = ((await getStatesByKey('DID_KEY')) as string) || '';
-  return {
-    privateKey,
-    publicKey,
-    userid,
-    walletAddress,
-    mainPrivateKey,
-    mainPublicKey,
-    didKey,
-    pubkeyExpiredTimestamp,
-  };
-  return await getWeb3MQTempKeys()
+  return await getWeb3MQTempKeys(false)
 }
 
 export async function disconnect() {
