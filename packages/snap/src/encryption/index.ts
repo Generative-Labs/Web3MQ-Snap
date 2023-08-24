@@ -76,16 +76,17 @@ export const GetAESBase64Key = async (hex_key: string) => {
   let master_key = await crypto.subtle.importKey(
     'raw',
     fromHexString(hex_key),
-    'HKDF',
+    {name: 'PBKDF2'},
     false,
     ['deriveKey'],
   );
 
   let aes_key_obj = await window.crypto.subtle.deriveKey(
     {
-      name: 'HKDF',
+      name: 'PBKDF2',
       salt: new Uint8Array(),
       info: new Uint8Array(),
+      "iterations": 100000,
       hash: 'SHA-384',
     },
     master_key,
@@ -95,11 +96,12 @@ export const GetAESBase64Key = async (hex_key: string) => {
   );
 
   let arrayBuffer = await crypto.subtle.exportKey('raw', aes_key_obj);
-  return btoa(
+  const base64String = btoa(
     String.fromCharCode(...new Uint8Array(arrayBuffer)),
   );
-};
 
+  return base64String;
+};
 
 export const aesGCMEncrypt = async (
   keyStr: string,
