@@ -141,9 +141,6 @@ export const renderMessagesList = async (msgList: any) => {
       content,
       senderId: msg.from,
       username: '',
-      avatar: 'assets/imgs/doe.png',
-      // date: "13 November",
-      // timestamp: "10:20",
       date: dateStr,
       timestamp: timestampStr,
       system: false,
@@ -247,7 +244,6 @@ export function newDateFormat(time: number, format?: string) {
     i: minutes,
     s: seconds,
   };
-  // 是否补 0
   const isAddZero = (o: string) => {
     return /M|D|H|I|S/.test(o);
   };
