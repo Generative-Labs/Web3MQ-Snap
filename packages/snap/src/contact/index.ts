@@ -17,7 +17,6 @@ import {
   getContactListRequest,
   getFollowerListRequest,
   getFollowingListRequest,
-  getMyFriendListRequest,
   sendFriendRequest,
 } from '../api';
 

@@ -14,7 +14,6 @@ export async function sendNotifyMessage(payload: SendNotifyMessageRpcDto) {
       },
     });
   } catch (error) {
-    console.log(error.message, 'sendNotifyMessage error')
     throw new Error(error);
   }
 }

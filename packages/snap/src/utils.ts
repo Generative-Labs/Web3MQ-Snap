@@ -43,6 +43,12 @@ export const sha256 = (data: string | Uint8Array): Uint8Array => {
   return new Uint8Array(jssha256.sha256.digest(data));
 };
 
+/**
+ * ed25519 sign
+ * @param PrivateKey
+ * @param signContent
+ * @return base64 string
+ */
 export const getDataSignature = async (
   PrivateKey: string,
   signContent: string,
@@ -66,9 +72,12 @@ export const getCurrentDate = () => {
   )}:${`0${d.getMinutes()}`.slice(-2)}`;
 };
 
+/**
+ * get All Web3MQ network nodes
+ * @param arr
+ */
 const getServerList = async (arr: any[]) => {
   let serverList = [];
-  // eslint-disable-next-line @typescript-eslint/prefer-for-of
   for (let i = 0; i < arr.length; i++) {
     const domain = arr[i];
     try {
@@ -76,37 +85,15 @@ const getServerList = async (arr: any[]) => {
       serverList = data;
       break;
     } catch (error) {
-      continue;
+
     }
   }
   return serverList;
 };
-
-export const getAllDomainList = async (env: EnvTypes) => {
-  const list = await getServerList(domainUrlList[env]);
-
-  const timestamp = Date.now();
-  const requestQueue = [];
-
-  // eslint-disable-next-line @typescript-eslint/prefer-for-of
-  for (let i = 0; i < list.length; i++) {
-    const item = list[i].endpoint;
-    try {
-      const { headers } = await Request.head(`${item}/api/ping/`);
-      const timeDifference = new Date(headers.date).valueOf() - timestamp;
-      requestQueue.push({
-        time: timeDifference,
-        url: item,
-        serverRate: headers['server-rate'],
-        nodeId: headers.nodeid,
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  }
-  return requestQueue;
-};
-
+/**
+ * sort by key
+ * @param key
+ */
 const handleSort = (key: string) => {
   return (a: any, b: any) => {
     const val1 = Number(a[key]);
@@ -115,18 +102,47 @@ const handleSort = (key: string) => {
   };
 };
 
+/**
+ * Help users select the fastest node
+ * @param env
+ * @returns Fastest Node
+ * @type string
+ */
 export const getFastestUrl = async (env: EnvTypes = 'test') => {
-  const list = await getAllDomainList(env);
-  return list.sort(handleSort('time'))[0].url;
+  const list = await getServerList(domainUrlList[env]);
+  let requestQueue = []
+  for (let i = 0; i < list.length; i++) {
+    const item = list[i];
+    const startTime = Date.now();
+    let requestTime = 0
+    try {
+      const ping = await fetch(`${item.endpoint}/api/ping/`).then((res) =>
+        res.json()
+      );
+      if (ping) {
+        requestTime = Date.now() - startTime;
+      }
+      requestQueue.push({
+        ...item,
+        url: item.endpoint,
+        time: requestTime
+      });
+    } catch (error) {
+    }
+  }
+  if (requestQueue.length === 0 ) {
+    throw new Error('Network error')
+  }
+  return list.sort(handleSort('time'))[0].url || '';
 };
 
-export const renderMessagesList = async (msglist: any) => {
-  return msglist.map((msg: any, idx: number) => {
+export const renderMessagesList = async (msgList: any) => {
+  return msgList.map((msg: any, idx: number) => {
     let content = '';
     if (msg.cipher_suite === 'NONE') {
-      content = decodeURIComponent(escape(window.atob(msg.payload)));
+      content = window.atob(msg.payload);
     } else {
-      content = `UnKnow message type ${msg.cipher_suite}`;
+      throw new Error('This message decode error')
     }
     const date = new Date(msg.timestamp);
 
@@ -135,16 +151,13 @@ export const renderMessagesList = async (msglist: any) => {
     const dateStr = `${date.getFullYear()}-${
       date.getMonth() + 1
     }-${date.getDate()}`;
-    const message = {
+    return {
       _id: idx + 1,
       id: idx + 1,
       indexId: idx + 1,
       content,
       senderId: msg.from,
       username: '',
-      avatar: 'assets/imgs/doe.png',
-      // date: "13 November",
-      // timestamp: "10:20",
       date: dateStr,
       timestamp: timestampStr,
       system: false,
@@ -153,7 +166,6 @@ export const renderMessagesList = async (msglist: any) => {
       seen: true,
       failure: false,
     };
-    return message;
   });
 };
 
@@ -204,7 +216,7 @@ export const getStatesByKey = async (key: string) => {
   return null;
 };
 
-export const getWeb3MQTempKeys = async () => {
+export const getWeb3MQTempKeys = async (showError = true) => {
   const privateKey = ((await getStatesByKey('PRIVATE_KEY')) as string) || '';
   const publicKey = ((await getStatesByKey('PUBLIC_KEY')) as string) || '';
   const pubkeyExpiredTimestamp = ((await getStatesByKey('PUBKEY_EXPIRED_TIMESTAMP')) as string) || '';
@@ -216,7 +228,7 @@ export const getWeb3MQTempKeys = async () => {
   const mainPublicKey =
     ((await getStatesByKey('MAIN_PUBLIC_KEY')) as string) || '';
   const didKey = ((await getStatesByKey('DID_KEY')) as string) || '';
-  if (!privateKey && !publicKey && !userid) {
+  if (!privateKey && !publicKey && !userid && showError) {
     throw new Error('The PrivateKey and PublicKey is required!');
   }
   return {
@@ -249,7 +261,6 @@ export function newDateFormat(time: number, format?: string) {
     i: minutes,
     s: seconds,
   };
-  // 是否补 0
   const isAddZero = (o: string) => {
     return /M|D|H|I|S/.test(o);
   };

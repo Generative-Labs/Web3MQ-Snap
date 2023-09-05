@@ -29,19 +29,15 @@ import {
   RegisterBySignParams,
   RegisterParams,
   WalletNameMap,
-  WalletSignRes,
-  WalletType,
   LoginResponse,
   GetUserInfoResponse,
   GetSignContentResponse,
   GetRegisterSignContentParams,
   MainKeypairType,
-  AccountType,
   ConnectToWeb3MQParams,
   GetRegisterSignContentResponse,
   RegisterToWeb3MQParams,
 } from '../types';
-import { getEthAccount, signWithEth } from './eth';
 
 export class Register {
   appKey: string;
@@ -85,19 +81,6 @@ export class Register {
       userid,
       userExist,
     };
-  };
-
-  getMainKeypair = async (
-    options: GetMainKeypairParams,
-  ): Promise<{ publicKey: string; secretKey: string }> => {
-    const { password, did_value, did_type } = options;
-    const { signContent } = await this.getMainKeypairSignContent(options);
-    const { sign: signature } = await this.sign(
-      signContent,
-      did_value,
-      did_type,
-    );
-    return await this.getMainKeypairBySignature(signature, password);
   };
 
   register = async (options: RegisterBySignParams) => {
@@ -149,28 +132,36 @@ export class Register {
       mainPublicKey,
       pubkeyExpiredTimestamp = Date.now() + 86400 * 1000,
     } = options;
+
+    // decode private key
+    let decode_dataStr = ''
+    try {
+      const AesKey = await GetAESBase64Key(password);
+      const AesIv = Uint8ToBase64String(sha256(password)).slice(0, 16)
+      const decode_data = await aesGCMDecrypt(
+        AesKey,
+        AesIv,
+        Base64StringToUint8(mainPrivateKey),
+      );
+      decode_dataStr = new TextDecoder().decode(
+        new Uint8Array(decode_data),
+      );
+    } catch (e) {
+    }
+    if (!decode_dataStr) {
+      throw new Error('Private key decode error, please retry')
+    }
     try {
       const timestamp = Date.now();
       const { PublicKey, PrivateKey } = await GenerateEd25519KeyPair();
       const signContent = sha3_224(
         userid + PublicKey + pubkeyExpiredTimestamp + timestamp,
       );
-      const AesKey = await GetAESBase64Key(password);
-      const AesIv = AesKey.slice(0, 16);
-      const decode_data = await aesGCMDecrypt(
-        AesKey,
-        AesIv,
-        Base64StringToUint8(mainPrivateKey),
-      );
-      const decode_dataStr = new TextDecoder().decode(
-        new Uint8Array(decode_data),
-      );
       const login_signature = await getDataSignature(
         decode_dataStr,
         signContent,
       );
-
-      const payload: LoginApiParams = {
+      await userLoginRequest({
         userid,
         did_type: didType,
         did_value: didValue,
@@ -181,8 +172,7 @@ export class Register {
         pubkey_type: 'ed25519',
         timestamp,
         pubkey_expired_timestamp: pubkeyExpiredTimestamp,
-      };
-      const loginRes = await userLoginRequest(payload);
+      });
       return {
         tempPrivateKey: PrivateKey,
         tempPublicKey: PublicKey,
@@ -191,33 +181,7 @@ export class Register {
         pubkeyExpiredTimestamp,
       };
     } catch (error: any) {
-      console.log(error, 'error');
-      throw new Error(error.message);
-    }
-  };
-
-  sign = async (
-    signContent: string,
-    address: string,
-    walletType: WalletType,
-  ): Promise<WalletSignRes> => {
-    switch (walletType) {
-      default:
-        return signWithEth(signContent, address);
-    }
-  };
-
-  getAccount = async (walletType: WalletType): Promise<AccountType> => {
-    switch (walletType) {
-      default:
-        return await getEthAccount();
-    }
-  };
-
-  connectWallet = async (walletType: WalletType): Promise<AccountType> => {
-    switch (walletType) {
-      default:
-        return await getEthAccount();
+      throw new Error(error);
     }
   };
 
@@ -254,7 +218,7 @@ Nonce: ${magicString}`;
     }
     const publicKey = await ed.getPublicKey(secretKey);
     const AesKey = await GetAESBase64Key(password);
-    const AesIv = AesKey.slice(0, 16);
+    const AesIv = Uint8ToBase64String(sha256(password)).slice(0, 16)
     const encrytData = await aesGCMEncrypt(
       AesKey,
       AesIv,

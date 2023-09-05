@@ -3,9 +3,6 @@ export type PageParams = {
   size: number;
 };
 
-export type AccountType = {
-  address: string;
-};
 
 export type RegisterBySignParams = {
   userid: string;
@@ -132,12 +129,7 @@ export interface GetPublicFollowerListParams extends PageParams {
   timestamp: number;
 }
 
-export type WalletType = 'eth' | 'starknet' | 'qrcode';
-
-export type WalletSignRes = {
-  sign: string;
-  publicKey?: string;
-};
+export type WalletType = 'eth' | 'starknet';
 
 export type GetRegisterSignContentResponse = {
   signContent: string;
