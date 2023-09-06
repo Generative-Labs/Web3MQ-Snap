@@ -1,5 +1,5 @@
 {
-  "version": "0.8.6",
+  "version": "0.8.8",
   "description": "Web3MQ's Snap",
   "proposedName": "Web3MQ Snap",
   "repository": {
@@ -7,7 +7,7 @@
     "url": "https://github.com/MetaMask/template-snap-monorepo.git"
   },
   "source": {
-    "shasum": "GwwRZUSs/aOeHG+2XYzv6cB5g98/4T9FD1FnZhMAFCg=",
+    "shasum": "G2nRnIQhfgjoKwLg6lOqrX4/n9WsGByDbn6vIXdOnaE=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",

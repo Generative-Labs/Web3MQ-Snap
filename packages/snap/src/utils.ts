@@ -133,7 +133,7 @@ export const getFastestUrl = async (env: EnvTypes = 'test') => {
   if (requestQueue.length === 0 ) {
     throw new Error('Network error')
   }
-  return list.sort(handleSort('time'))[0].url || '';
+  return requestQueue.sort(handleSort('time'))[0].url || '';
 };
 
 export const renderMessagesList = async (msgList: any) => {
