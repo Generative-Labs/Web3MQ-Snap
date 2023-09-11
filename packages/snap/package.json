@@ -1,10 +1,10 @@
 {
   "name": "@web3mq/snap",
-  "version": "0.8.8",
-  "description": "Web3MQ's Snap",
+  "version": "1.0.0",
+  "description": "Web3-native decentralized communication protocol. Encrypted, efficient and borderless.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MetaMask/template-snap-monorepo.git"
+    "url": "https://github.com/Generative-Labs/Web3MQ-Snap.git"
   },
   "license": "(MIT-0 OR Apache-2.0)",
   "main": "src/index.ts",
