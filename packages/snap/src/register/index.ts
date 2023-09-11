@@ -188,13 +188,23 @@ export class Register {
   getMainKeypairSignContent = async (
     options: GetMainKeypairParams,
   ): Promise<GetSignContentResponse> => {
-    const { password, did_value, did_type } = options;
-    const keyIndex = 1;
-    const keyMSG = `${did_type}:${did_value}${keyIndex}${password}`;
 
-    const magicString = Uint8ToBase64String(
-      new TextEncoder().encode(sha3_224(`$web3mq${keyMSG}web3mq$`)),
-    );
+    //original implementation of magicString
+    // const { password, did_value, did_type } = options;
+    // const keyIndex = 1;
+    // const keyMSG = `${did_type}:${did_value}${keyIndex}${password}`;
+
+    // const magicString = Uint8ToBase64String(
+    //   new TextEncoder().encode(sha3_224(`$web3mq${keyMSG}web3mq$`)),
+    // );
+
+    //hotfixed magicString implementation until cryptography issue reaches consensus
+    const magicString= await snap.request({
+      method: 'snap_getEntropy',
+      params: {
+        version: 1
+      },
+    });
 
     const signContent = `Signing this message will allow this app to decrypt messages in the Web3MQ protocol for the following address: ${did_value}. This won’t cost you anything.
 
