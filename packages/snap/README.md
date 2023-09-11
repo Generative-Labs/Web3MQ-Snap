@@ -1,10 +1,10 @@
 # Web3MQ Snap
 
-web3mq snap provides more possibilities for building web3 social dapps
+Web3MQ snap provides more possibilities for building web3 social dapps
 
 You can familiarize yourself with mq-web3 snap based on the following example
 
-Before starting, you need to install the [flask plugin](https://chrome.google.com/webstore/detail/metamask-flask-developmen/ljfoeinjpaedjfecbmggjgodbgkmjkjk?hl=zh-CN) on your browser. After the plugin is installed, execute the following code in your dapp to install the mq-web3 snap
+Before starting, you need to install [MetaMask](https://metamask.io/download/) on your browser. After the extension is installed, execute the following code in your dapp to install the mq-web3 snap
 
 Examples: https://web3mq-snap-demo.pages.dev/
 
