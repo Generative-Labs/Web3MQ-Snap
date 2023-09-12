@@ -54,7 +54,6 @@ export class Message {
 
     const cipherSuite = 'NONE';
     const byteData = new TextEncoder().encode(msg);
-    console.log(byteData, 'byteData');
 
     const msgid = await GenerateMessageID(userid, topic, timestamp, byteData);
     const signContent = msgid + userid + topic + nodeId + timestamp.toString();

@@ -137,10 +137,11 @@ export class Register {
     let decode_dataStr = ''
     try {
       const AesKey = await GetAESBase64Key(password);
-      const AesIv = Uint8ToBase64String(sha256(password)).slice(0, 16)
+      const res = await getStatesByKey(`aesIvKey`)
       const decode_data = await aesGCMDecrypt(
         AesKey,
-        AesIv,
+        //@ts-ignore
+        Base64StringToUint8(res),
         Base64StringToUint8(mainPrivateKey),
       );
       decode_dataStr = new TextDecoder().decode(
@@ -218,10 +219,12 @@ Nonce: ${magicString}`;
     }
     const publicKey = await ed.getPublicKey(secretKey);
     const AesKey = await GetAESBase64Key(password);
-    const AesIv = Uint8ToBase64String(sha256(password)).slice(0, 16)
+    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+    await saveStates(`aesIvKey`, Uint8ToBase64String(iv))
+
     const encrytData = await aesGCMEncrypt(
       AesKey,
-      AesIv,
+      iv,
       new TextEncoder().encode(ByteArrayToHexString(secretKey)),
     );
     const encrytDataStr = Uint8ToBase64String(new Uint8Array(encrytData));
