@@ -137,11 +137,11 @@ export class Register {
     let decode_dataStr = ''
     try {
       const AesKey = await GetAESBase64Key(password);
-      const res = await getStatesByKey(`aesIvKey`)
+      const aesIvKey = await getStatesByKey(`aesIvKey`)
       const decode_data = await aesGCMDecrypt(
         AesKey,
         //@ts-ignore
-        Base64StringToUint8(res),
+        Base64StringToUint8(aesIvKey),
         Base64StringToUint8(mainPrivateKey),
       );
       decode_dataStr = new TextDecoder().decode(
