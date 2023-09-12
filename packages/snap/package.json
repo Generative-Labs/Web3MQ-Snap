@@ -1,6 +1,6 @@
 {
   "name": "@web3mq/snap",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Web3-native decentralized communication protocol. Encrypted, efficient and borderless.",
   "repository": {
     "type": "git",
