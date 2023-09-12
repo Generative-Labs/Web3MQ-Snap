@@ -17,7 +17,7 @@ import {
   Uint8ToBase64String,
 } from '../encryption';
 import {
-  getUserInfoRequest,
+  getUserInfoRequest, resetPasswordRequest,
   userLoginRequest,
   userRegisterRequest,
 } from '../api';
@@ -149,7 +149,7 @@ export class Register {
     } catch (e) {
     }
     if (!decode_dataStr) {
-      throw new Error('Private key decode error, please retry')
+      throw new Error('Invalid Password, please retry')
     }
     try {
       const timestamp = Date.now();
@@ -189,20 +189,16 @@ export class Register {
     options: GetMainKeypairParams,
   ): Promise<GetSignContentResponse> => {
 
-    //original implementation of magicString
-    // const { password, did_value, did_type } = options;
-    // const keyIndex = 1;
-    // const keyMSG = `${did_type}:${did_value}${keyIndex}${password}`;
+    const {  did_value, did_type, password } = options;
+    const keyIndex = 1;
 
-    // const magicString = Uint8ToBase64String(
-    //   new TextEncoder().encode(sha3_224(`$web3mq${keyMSG}web3mq$`)),
-    // );
+    const keyMSG = `${did_type}:${did_value}${keyIndex}${password}`;
 
-    //hotfixed magicString implementation until cryptography issue reaches consensus
     const magicString= await snap.request({
       method: 'snap_getEntropy',
       params: {
-        version: 1
+        version: 1,
+        salt: keyMSG
       },
     });
 
@@ -288,6 +284,7 @@ Issued At: ${getCurrentDate()}`;
       signature,
       password,
       userid,
+      isRetry= false,
     } = payload;
 
     const params: RegisterParams = {
@@ -306,7 +303,11 @@ Issued At: ${getCurrentDate()}`;
       testnet_access_key: this.appKey,
     };
     try {
-      await userRegisterRequest(params);
+      if (isRetry) {
+        await resetPasswordRequest(params)
+      } else {
+        await userRegisterRequest(params);
+      }
       await this.connectWeb3MQNetwork({
         walletType: walletType,
         walletAddress,

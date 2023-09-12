@@ -7,7 +7,7 @@
     "url": "https://github.com/Generative-Labs/Web3MQ-Snap.git"
   },
   "source": {
-    "shasum": "G2nRnIQhfgjoKwLg6lOqrX4/n9WsGByDbn6vIXdOnaE=",
+    "shasum": "I/e7K3a6hRfiXDJlcdn0FrpsJ44cy8c1GxmpjEJ1Has=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -18,6 +18,7 @@
     }
   },
   "initialPermissions": {
+    "snap_getEntropy": {},
     "snap_notify": {},
     "snap_manageState": {},
     "endowment:ethereum-provider": {},

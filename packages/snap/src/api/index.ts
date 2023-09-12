@@ -53,6 +53,9 @@ export const userRegisterRequest = async (
 ): Promise<RegisterApiResponse> => {
   return await Request.post('/api/user_register_v2/', payload);
 };
+export const resetPasswordRequest = async (payload: RegisterParams): Promise<RegisterApiResponse> => {
+  return await Request.post('/api/user_reset_password_v2/', payload);
+};
 export const sendMessageRequest = async (
   payload: SendMessageParams,
 ): Promise<any> => {
