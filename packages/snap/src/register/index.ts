@@ -17,7 +17,7 @@ import {
   Uint8ToBase64String,
 } from '../encryption';
 import {
-  getUserInfoRequest,
+  getUserInfoRequest, resetPasswordRequest,
   userLoginRequest,
   userRegisterRequest,
 } from '../api';
@@ -149,7 +149,7 @@ export class Register {
     } catch (e) {
     }
     if (!decode_dataStr) {
-      throw new Error('Private key decode error, please retry')
+      throw new Error('Invalid Password, please retry')
     }
     try {
       const timestamp = Date.now();
@@ -188,13 +188,19 @@ export class Register {
   getMainKeypairSignContent = async (
     options: GetMainKeypairParams,
   ): Promise<GetSignContentResponse> => {
-    const { password, did_value, did_type } = options;
+
+    const {  did_value, did_type, password } = options;
     const keyIndex = 1;
+
     const keyMSG = `${did_type}:${did_value}${keyIndex}${password}`;
 
-    const magicString = Uint8ToBase64String(
-      new TextEncoder().encode(sha3_224(`$web3mq${keyMSG}web3mq$`)),
-    );
+    const magicString= await snap.request({
+      method: 'snap_getEntropy',
+      params: {
+        version: 1,
+        salt: keyMSG
+      },
+    });
 
     const signContent = `Signing this message will allow this app to decrypt messages in the Web3MQ protocol for the following address: ${did_value}. This won’t cost you anything.
 
@@ -278,6 +284,7 @@ Issued At: ${getCurrentDate()}`;
       signature,
       password,
       userid,
+      isRetry= false,
     } = payload;
 
     const params: RegisterParams = {
@@ -296,7 +303,11 @@ Issued At: ${getCurrentDate()}`;
       testnet_access_key: this.appKey,
     };
     try {
-      await userRegisterRequest(params);
+      if (isRetry) {
+        await resetPasswordRequest(params)
+      } else {
+        await userRegisterRequest(params);
+      }
       await this.connectWeb3MQNetwork({
         walletType: walletType,
         walletAddress,

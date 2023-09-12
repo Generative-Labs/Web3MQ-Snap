@@ -259,6 +259,7 @@ export type RegisterToWeb3MQParams = {
   registerTime: number; // require by register
   nickname?: string;
   avatarUrl?: string;
+  isRetry?: boolean;
   userid: string;
 };
 
