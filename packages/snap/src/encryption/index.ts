@@ -23,12 +23,12 @@ const aesDecrypt = async (
   aesName: string,
   keyStr: string,
   keySize: number,
-  iv: string,
+  iv: Uint8Array,
   encoded: Uint8Array,
 ) => {
   const alg = {
     name: aesName,
-    iv: stringToArrayBuffer(atob(iv)),
+    iv,
     length: keySize,
   };
 
@@ -41,12 +41,12 @@ const aesEncrypt = async (
   aesName: string,
   keyStr: string,
   keySize: number,
-  iv: string,
+  iv: Uint8Array,
   encoded: Uint8Array,
 ) => {
   const alg = {
     name: aesName,
-    iv: stringToArrayBuffer(atob(iv)),
+    iv,
     length: keySize,
   };
   let key = await importSecretKey(stringToArrayBuffer(atob(keyStr)), aesName);
@@ -105,7 +105,7 @@ export const GetAESBase64Key = async (hex_key: string) => {
 
 export const aesGCMEncrypt = async (
   keyStr: string,
-  iv: string,
+  iv: Uint8Array,
   inputByteData: Uint8Array,
 ) => {
   const keySize = 256;
@@ -114,7 +114,7 @@ export const aesGCMEncrypt = async (
 
 export const aesGCMDecrypt = async (
   keyStr: string,
-  iv: string,
+  iv: Uint8Array,
   encoded: Uint8Array,
 ) => {
   const keySize = 256;

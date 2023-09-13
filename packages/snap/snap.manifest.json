@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Web3-native decentralized communication protocol. Encrypted, efficient and borderless.",
   "proposedName": "Web3MQ",
   "repository": {
@@ -7,7 +7,7 @@
     "url": "https://github.com/Generative-Labs/Web3MQ-Snap.git"
   },
   "source": {
-    "shasum": "G2nRnIQhfgjoKwLg6lOqrX4/n9WsGByDbn6vIXdOnaE=",
+    "shasum": "3g5zC+bNb4ChuURNDiBSk/w/QxHubEjSCXzK7AFKlMo=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
