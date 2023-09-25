@@ -18,6 +18,7 @@ import {
 } from '../encryption';
 import {
   getUserInfoRequest,
+  resetPasswordRequest,
   userLoginRequest,
   userRegisterRequest,
 } from '../api';
@@ -150,7 +151,7 @@ export class Register {
     } catch (e) {
     }
     if (!decode_dataStr) {
-      throw new Error('Private key decode error, please retry')
+      throw new Error('Invalid Password, please retry')
     }
     try {
       const timestamp = Date.now();
@@ -281,6 +282,7 @@ Issued At: ${getCurrentDate()}`;
       signature,
       password,
       userid,
+      isResetPassword = false
     } = payload;
 
     const params: RegisterParams = {
@@ -299,7 +301,11 @@ Issued At: ${getCurrentDate()}`;
       testnet_access_key: this.appKey,
     };
     try {
-      await userRegisterRequest(params);
+      if (isResetPassword) {
+        await resetPasswordRequest(params)
+      } else {
+        await userRegisterRequest(params);
+      }
       await this.connectWeb3MQNetwork({
         walletType: walletType,
         walletAddress,
